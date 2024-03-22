@@ -1,0 +1,59 @@
+body{ overflow:hidden; } 
+
+.ball{
+  --size: 50px;
+  --bounceHeight: 50px;
+  --duration: .5s;
+  width: var(--size);
+  height: var(--size);
+  margin: auto;
+  position: absolute;
+  top: 200px; 
+  left: 0;
+  right: 0;
+  perspective: 1000px;
+}
+
+/* bouncing */
+.ball::before{
+  content: '';
+  display: block;
+  width: inherit;
+  height: inherit;
+  background: radial-gradient(ellipse at 30% 20%, LightSalmon, transparent 40%), 
+              radial-gradient(circle at -20% -30%, rgb(34, 29, 28) 60%, darkred);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,.1) inset;
+  animation: bounce var(--duration) infinite alternate cubic-bezier(1,0,.8,.9); 
+}
+
+/* shadow */
+.ball::after{
+  content: '';
+  position: relative;
+  z-index: -1;
+  bottom: 0; 
+  left: 0;
+  right: 0;
+  display: block;
+  width: inherit;
+  height: 20%;
+  color: #CCC;
+  background-color: currentColor;
+  border-radius: 50%;
+  transform: translateY(var(--bounceHeight)) scale(.8);
+  animation: bounceShadow var(--duration) infinite alternate cubic-bezier(1,0,.8,.9); 
+}
+
+@keyframes bounce {
+    85%  { transform: translateY(calc(var(--bounceHeight) - 3px)); }
+    86%  { transform: translateY(calc(var(--bounceHeight) - 3px)) scale(1.1, .9); }
+    100%  { transform: translateY(var(--bounceHeight)) scale(1.4, .5); }
+}
+
+@keyframes bounceShadow {
+    0%  { box-shadow: 0 0 10px 8px currentColor; color:#EEE; }
+    90%  { box-shadow: 0 0 3px 3px currentColor; }
+    91%  { box-shadow: 0 0 2px 2px currentColor; }
+    100%  { box-shadow: 0 0 0px currentColor; }
+}
