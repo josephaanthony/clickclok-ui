@@ -4,8 +4,14 @@
       <ion-grid>
         <ion-row>
           <ion-col class="center">$$ {{ prizeMoney }}</ion-col>
-          <ion-col class="center">ClickClok</ion-col>
-          <ion-col class="center">{{ countdown }}</ion-col>
+          <ion-col class="center">
+            <ion-text color="primary">
+              <h1 class="no-margin">Click Clok</h1>
+            </ion-text>
+          </ion-col>
+          <ion-col class="center">
+            <ion-text color="warning">{{ formatCountdown() }}</ion-text>
+          </ion-col>
         </ion-row>
       </ion-grid>
     </ion-title>
@@ -24,7 +30,8 @@
   <div class="container">
 
     <div class="game-area">
-      <bouncing-ball-simple></bouncing-ball-simple>
+      <!-- <bouncing-ball-simple></bouncing-ball-simple> -->
+      <app-bouncing-ball></app-bouncing-ball>
     </div>
   </div>
 

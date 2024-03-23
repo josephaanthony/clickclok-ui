@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon } from '@ionic/angular/standalone';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 
@@ -9,12 +9,14 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, 
+  imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, 
     CommonModule, BouncingBallComponent, BouncingBallSimpleComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
+  COUNT_RESET_VALUE = 300;
+
   prizeMoney = 0;
-  countdown = 10;
+  countdown = this.COUNT_RESET_VALUE;
   countdownInterval: any;
   ballX = 0;
   ballY = 0;
@@ -47,8 +49,14 @@ export class HomePage implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  formatCountdown() {
+    const minutes = Math.floor(this.countdown / 60);
+    const seconds = this.countdown % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
   resetCountdown() {
-    this.countdown = 10;
+    this.countdown = this.COUNT_RESET_VALUE;
   }
 
   animateBall() {

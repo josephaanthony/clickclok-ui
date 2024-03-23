@@ -1,3 +1,5 @@
+npm install -g @ionic/cli
+
 ionic serve
 
 ionic capacitor add android
