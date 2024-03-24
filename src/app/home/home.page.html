@@ -3,14 +3,21 @@
     <ion-title>
       <ion-grid>
         <ion-row>
-          <ion-col class="center">$$ {{ prizeMoney }}</ion-col>
+          <ion-col class="center">
+            <!-- $$ {{ prizeMoney }} -->
+            <ion-button [disabled]="!walletConnected" (click)= "getTokenData()">Get Token Data</ion-button>
+          </ion-col>
           <ion-col class="center">
             <ion-text color="primary">
               <h1 class="no-margin">Click Clok</h1>
             </ion-text>
           </ion-col>
           <ion-col class="center">
-            <ion-text color="warning">{{ formatCountdown() }}</ion-text>
+            <ion-text color="warning">
+              <ion-button [disabled]="!walletConnected" (click)= "getAirDrop()">Get Air Drop</ion-button>
+              <ion-button [disabled]="walletConnected" (click)= "openMetaMask()">Connect Wallet</ion-button>
+              <!-- {{ formatCountdown() }} -->
+            </ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -22,21 +29,21 @@
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">
-        $$ {{ prizeMoney }}
+        <!-- $$ {{ prizeMoney }} -->
       </ion-title>
     </ion-toolbar>
   </ion-header>
   
   <div class="container">
-
     <div class="game-area">
       <!-- <bouncing-ball-simple></bouncing-ball-simple> -->
-      <app-bouncing-ball></app-bouncing-ball>
+      <!-- <app-bouncing-ball ballText="{{prizeMoney}}"></app-bouncing-ball> -->
+      <app-game-area prizeMoneyInput={{prizeMoney}} currentTimeInput={{countdown}}></app-game-area>
     </div>
   </div>
 
 </ion-content>
 
 <ion-footer>
-  <ion-button expand="block" (click)="incrementPrizeMoney()">Increase Prize Money</ion-button>
+  <ion-button expand="block" (click)="incrementPrizeMoney()">Play JLTR</ion-button>
 </ion-footer>

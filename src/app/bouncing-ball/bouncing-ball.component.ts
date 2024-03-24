@@ -13,6 +13,7 @@ import { IonContent, IonCard, IonCardContent, IonButton, AnimationController } f
 export class BouncingBallComponent {
   @Input() x = 300; // Initial X position
   @Input() y = 200; // Initial Y position
+  @Input() ballText = "";
 
   @ViewChild(IonCard, { read: ElementRef }) card: ElementRef<HTMLIonCardElement> | undefined;
 
@@ -47,9 +48,6 @@ export class BouncingBallComponent {
       ]);
 
     this.animation = this.animationCtrl.create().duration(2000).addAnimation([card]);
-  }
-
-  play() {
-    this.animation?.play();
+    this.animation.play();
   }
 }

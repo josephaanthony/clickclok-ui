@@ -1,75 +1,156 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { AnimationBuilder, style, animate } from '@angular/animations';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon } from '@ionic/angular/standalone';
+import * as Highcharts from 'highcharts';
+import * as HighchartsMore from 'highcharts/highcharts-more'; // Import highcharts-more for gauge chart
+import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import solid-gauge for solid gauge chart
+
+// Initialize the modules
+(HighchartsMore as any)(Highcharts);
+(HighchartsGauge as any)(Highcharts);
 
 @Component({
   selector: 'app-game-area',
   templateUrl: './game-area.component.html',
   styleUrls: ['./game-area.component.scss'],
-  standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, CommonModule]
+  imports: [CommonModule, IonContent],
+  standalone: true
 })
 export class GameAreaComponent implements OnInit {
-  ballX = 300; // Initial X position
-  ballY = 200; // Initial Y position
-  prizeMoneyLocation = this.ballY;
-  ballSpeedX = 0; // X speed
-  ballSpeedY = 1.5; // Y speed
-  ballRadius = 25;
-  requestId: any;
-  ballTransform = '';
+  @Input() prizeMoneyInput: any = 0;
+  @Input() currentTimeInput: any = 0;
 
-  ngOnInit() {
-    this.animateBall();
+  countdownInterval: any;
+  chart: any;
+
+  maxTime = 200;
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.updateTime(changes["currentTimeInput"], changes["prizeMoneyInput"]);
   }
 
-  animateBall() {
-    this.requestId = requestAnimationFrame(this.animateBall.bind(this));
-
-    // Update ball position
-    this.ballY += this.ballSpeedY;
-
-    // Add bouncing logic
-    const gameAreaHeight = 400;
-    const bouncingRange = 100; // Bouncing range in pixels
-
-    if (this.ballY + this.ballRadius > gameAreaHeight) {
-      this.ballY = gameAreaHeight - this.ballRadius;
-      this.ballSpeedY = -Math.abs(this.ballSpeedY); // Reverse vertical speed with a small increase
-    } else if (this.ballY - this.ballRadius < gameAreaHeight - bouncingRange) {
-      this.ballY = gameAreaHeight - bouncingRange + this.ballRadius;
-      this.ballSpeedY = Math.abs(this.ballSpeedY); // Reverse vertical speed with a small increase
-    }
-
-    // Apply 3D transformation
-    const bouncingFactor = Math.abs(Math.sin((this.ballY - gameAreaHeight + bouncingRange) / bouncingRange * Math.PI));
-    this.ballTransform = `translateY(${this.ballY - gameAreaHeight + bouncingRange}px) scale(${1 + bouncingFactor * 0.5})`;
+  ngOnInit(): void {
+    this.drawChart();
+    this.playAnimation();
   }
 
-  animateBallOld() {
-    this.requestId = requestAnimationFrame(this.animateBall.bind(this));
+  drawChart() {
+    this.chart = (Highcharts as any).chart('container', {
 
-    // Update ball position
-    this.ballY += this.ballSpeedY;
-
-    const ballUpBoundary = this.prizeMoneyLocation - 150;
-    // const ballDownBoundary = this.ballY + 50;
-
-    // Add bouncing logic
-    const gameAreaHeight = 400;
-
-    if (this.ballY + (this.ballRadius * 2) > this.prizeMoneyLocation) {
-      this.ballY = this.prizeMoneyLocation - (this.ballRadius * 2);
-      this.ballSpeedY = -Math.abs(this.ballSpeedY); // Reverse vertical speed with a small increase
-    }
-
-    if (this.ballY < ballUpBoundary) {
-      // this.ballY = gameAreaHeight - this.ballRadius;
-      this.ballSpeedY = +Math.abs(this.ballSpeedY); // Reverse vertical speed with a small increase
-    }
+      chart: {
+          type: 'gauge',
+          plotBackgroundColor: null,
+          plotBackgroundImage: null,
+          plotBorderWidth: 0,
+          plotShadow: false,
+          height: '80%'
+      },
+  
+      title: {
+          text: '$$ 0'
+      },
+  
+      pane: {
+          startAngle: -90,
+          endAngle: 89.9,
+          background: null,
+          center: ['50%', '75%'],
+          size: '110%'
+      },
+  
+      // the value axis
+      yAxis: {
+          min: 0,
+          max: this.maxTime,
+          tickPixelInterval: 72,
+          tickPosition: 'inside',
+          tickColor: Highcharts?.defaultOptions?.chart?.backgroundColor || '#FFFFFF',
+          tickLength: 20,
+          tickWidth: 2,
+          minorTickInterval: null,
+          labels: {
+              distance: 20,
+              style: {
+                  fontSize: '14px'
+              }
+          },
+          lineWidth: 0,
+          plotBands: [{
+              from: 0,
+              to: 120,
+              color: '#55BF3B', // green
+              thickness: 20
+          }, {
+              from: 120,
+              to: 160,
+              color: '#DDDF0D', // yellow
+              thickness: 20
+          }, {
+              from: 160,
+              to: 200,
+              color: '#DF5353', // red
+              thickness: 20
+          }]
+      },
+  
+      series: [{
+          name: 'Speed',
+          data: [200],
+          tooltip: {
+              valueSuffix: ' sec'
+          },
+          dataLabels: {
+              format: '{y} sec',
+              borderWidth: 0,
+              color: (
+                  Highcharts.defaultOptions.title &&
+                  Highcharts.defaultOptions.title.style &&
+                  Highcharts.defaultOptions.title.style.color
+              ) || '#333333',
+              style: {
+                  fontSize: '16px'
+              }
+          },
+          dial: {
+              radius: '80%',
+              backgroundColor: 'gray',
+              baseWidth: 12,
+              baseLength: '0%',
+              rearLength: '0%'
+          },
+          pivot: {
+              backgroundColor: 'gray',
+              radius: 6
+          }
+  
+      }]
+  
+  });
   }
 
-  ngOnDestroy() {
-    cancelAnimationFrame(this.requestId);
+  playAnimation() {
+    this.countdownInterval = setInterval(() => {
+      if (this.chart && !this.chart.renderer.forExport) {
+        const point = this.chart.series[0].points[0];
+        if(point.y) {
+          point.update(point.y - 1);
+        }
+      }
+    }, 1000);
+  }
+
+  updateTime(currentTimeInput: any, prizeMoneyInput: any) {
+    if(this.chart && this.chart.series) {
+
+      if(currentTimeInput && currentTimeInput.currentValue < this.maxTime) {
+        this.chart.series[0].points[0].update(this.maxTime - currentTimeInput.currentValue);
+      }
+
+      if(prizeMoneyInput) {
+        this.chart.setTitle({ text: '$$ ' + prizeMoneyInput.currentValue });
+      }
+    }
   }
 }

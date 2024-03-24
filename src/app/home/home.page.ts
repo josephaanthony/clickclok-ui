@@ -3,6 +3,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon } from '@ionic/angular/standalone';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
+import { GameAreaComponent } from '../game/game-area.component';
+import { ContractService } from '../service/contract.service';
 
 @Component({
   selector: 'app-home',
@@ -10,43 +12,74 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, 
-    CommonModule, BouncingBallComponent, BouncingBallSimpleComponent],
+    CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
   COUNT_RESET_VALUE = 300;
-
   prizeMoney = 0;
-  countdown = this.COUNT_RESET_VALUE;
-  countdownInterval: any;
-  ballX = 0;
-  ballY = 0;
-  ballRadius = 25;
-  ballSpeedX = 0;
-  ballSpeedY = 2;
-  lastPrizeMoneyUpdate = new Date().getTime();
+  countdown: number = this.COUNT_RESET_VALUE;
+  // lastPrizeMoneyUpdate = new Date().getTime();
+  walletConnected = false;
+  contractUpdateInterval: any;
+
+  constructor(private contractService: ContractService) {    
+  }
 
   ngOnInit() {
-    this.startCountdown();
-    this.animateBall();
+    // this.getContractUpdates();
   }
 
   ngOnDestroy() {
-    clearInterval(this.countdownInterval);
+  }
+
+  getContractUpdates() {
+    this.contractUpdateInterval = setInterval(() => {
+      this.getTokenData();
+    }, 1000)
+  }
+
+  getTokenData() {
+    this.contractService.getContractUpdates().then(resp => {
+      this.countdown = this.calculateTimestampDifference(parseInt(resp[2]),  parseInt(resp[1]));
+      this.prizeMoney = parseInt(resp[0]) / (10 ** 18);
+      // this.countdown = resp.lastExecutedTimestamp;
+    })
+  }
+
+
+  private calculateTimestampDifference(timestamp1: number, timestamp2: number): number {
+    // Convert both timestamps to milliseconds
+    const timestamp1Millis = timestamp1 * 1000;
+    const timestamp2Millis = timestamp2 * 1000;
+
+    // Calculate the difference in milliseconds
+    const differenceMillis = Math.abs(timestamp1Millis - timestamp2Millis);
+
+    // Convert the difference back to seconds
+    const differenceSeconds = Math.floor(differenceMillis / 1000);
+
+    return differenceSeconds;
+  }
+
+  getAirDrop() {
+    this.contractService.getAirDrop().then(() => {
+      console.log("Air Drop done");
+    })
+  }
+
+  
+  openMetaMask(){
+    this.contractService.openMetamask().then(resp =>{
+      this.walletConnected = resp;
+    })
   }
 
   incrementPrizeMoney() {
-    this.prizeMoney += 50;
-    this.lastPrizeMoneyUpdate = new Date().getTime();
-    this.resetCountdown();
-  }
+    // this.prizeMoney += 50;
+    // this.lastPrizeMoneyUpdate = new Date().getTime();
+    // this.resetCountdown();
 
-  startCountdown() {
-    this.countdownInterval = setInterval(() => {
-      this.countdown--;
-      if (this.countdown === 0) {
-        this.resetCountdown();
-      }
-    }, 1000);
+    this.contractService.sendTransaction();
   }
 
   formatCountdown() {
@@ -57,29 +90,5 @@ export class HomePage implements OnInit, OnDestroy {
 
   resetCountdown() {
     this.countdown = this.COUNT_RESET_VALUE;
-  }
-
-  animateBall() {
-    // requestAnimationFrame(this.animateBall.bind(this));
-
-    const currentTime = new Date().getTime();
-    const timeDiff = currentTime - this.lastPrizeMoneyUpdate;
-    const ballSpeed = 0.5; // Adjust this value to control the ball speed
-
-    this.ballX = (timeDiff / 1000) * ballSpeed; // Update X position based on time
-    this.ballY = this.prizeMoney / 10; // Update Y position based on prize money
-
-    // this.ballSpeedY += 0.9; // Increase vertical speed to create bouncing effect
-
-    // // Add bouncing logic
-    // const gameAreaWidth = 600; // Adjust this value based on your game area width
-    // const gameAreaHeight = 400; // Adjust this value based on your game area height
-
-    // if (this.ballY + this.ballRadius > gameAreaHeight) {
-    //   this.ballY = gameAreaHeight - this.ballRadius;
-    //   this.ballSpeedY = -Math.abs(this.ballSpeedY); // Reverse vertical speed with a small increase
-    // } else {
-    //   this.ballY += this.ballSpeedY;
-    // }
   }
 }

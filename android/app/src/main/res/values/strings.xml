@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">clickclock-ui</string>
     <string name="title_activity_main">clickclock-ui</string>
-    <string name="package_name">io.ionic.starter</string>
-    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="package_name">io.clickclok.ui</string>
+    <string name="custom_url_scheme">io.clickclok.ui</string>
 </resources>
