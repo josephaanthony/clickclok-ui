@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Web3 } from "web3";
 import { AlertController } from '@ionic/angular';
-import { MetaMaskSDK } from "@metamask/sdk";
 
 declare const window: any;
 
