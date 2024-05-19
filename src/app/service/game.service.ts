@@ -34,6 +34,11 @@ export class GameService {
         return claims;
     }
 
+    async getAirDrop(name: string, senderAddress: string) {
+        return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/airDrop?name=" + name + "&senderAddress=" + senderAddress,
+            this.HTTP_OPTIONS));
+    }
+
     async registerUser(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE) {
         return await lastValueFrom(this.httpClient.post(environment.app.baseUrl + "/cc-api/registerUser", {
             "clikClokName": name,

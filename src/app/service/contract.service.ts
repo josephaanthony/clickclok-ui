@@ -95,8 +95,12 @@ export class ContractService {
 
     async getAirDrop() {
         // Example: Call a read-only function
-        const result = await this.contract.methods.getAirDrop().send({ from: this.senderAddress });
-        // const result2 = await this.contract.methods.lastExecutedTimestamp().call();
+        var result = null;
+        if(this.web3) {
+            result = await this.contract.methods.getAirDrop().send({ from: this.senderAddress });    
+        } else {
+            result = this.gameService.getAirDrop(this.GAME_NAME, this.senderAddress);
+        }
 
         console.log('Result:', result);
         return result;
