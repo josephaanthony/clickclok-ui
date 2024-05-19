@@ -15,3 +15,5 @@ ionic capacitor open ios
 ionic capacitor build android
 
 ionic capacitor build android --release
+
+keystore path: C:\Users\josep\DadyIn\Projects\keystore\clickclok.jks -> MyDrive/ClikClok

@@ -9,13 +9,21 @@
           </ion-col>
           <ion-col class="center">
             <ion-text color="primary">
-              <h1 class="no-margin">Click Clok</h1>
+              <h1 class="no-margin">Clik Clok</h1>
+              <h6 class="no-margin">({{senderAddress}})</h6>
             </ion-text>
           </ion-col>
           <ion-col class="center">
             <ion-text color="warning">
               <ion-button [disabled]="!walletConnected" (click)= "getAirDrop()">Get Air Drop</ion-button>
-              <ion-button [disabled]="walletConnected" (click)= "openMetaMask()">Connect Wallet</ion-button>
+
+              <ion-button class="button-list">
+                <ion-select aria-label="Wallet" interface="popover" placeholder="Connect" (ionChange)="handleWalletChange($event)">
+                  <ion-select-option [disabled]="!isCryptoWalletAvailable()" value="METAMASK">Crypto Wallet</ion-select-option>
+                  <ion-select-option value="GOOGLE">Google  ({{senderAddress}})</ion-select-option>
+                </ion-select>
+              </ion-button>
+              <!-- <ion-button [disabled]="walletConnected" (click)= "openMetaMask()">Connect Wallet</ion-button> -->
               <!-- {{ formatCountdown() }} -->
             </ion-text>
           </ion-col>
@@ -45,5 +53,5 @@
 </ion-content>
 
 <ion-footer>
-  <ion-button expand="block" (click)="incrementPrizeMoney()">Play JLTR</ion-button>
+  <ion-button [disabled]="!walletConnected" expand="block" (click)="incrementPrizeMoney()">Play JLTR</ion-button>
 </ion-footer>

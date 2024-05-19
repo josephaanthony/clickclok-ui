@@ -20,3 +20,16 @@
 .no-margin {
   margin: 0px;
 }
+
+.button-list {
+  height: 36px;
+  width: 176px;
+}
+
+.button-list .icon-inner {
+  color: white;
+}
+
+:host(.button-solid) .icon-inner {
+  color: yellow;
+}

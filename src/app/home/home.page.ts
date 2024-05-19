@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption } from '@ionic/angular/standalone';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 import { GameAreaComponent } from '../game/game-area.component';
@@ -11,13 +11,15 @@ import { ContractService } from '../service/contract.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, 
+  imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
+    IonList, IonSelect, IonSelectOption, IonItem, IonItemOption,
     CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
   COUNT_RESET_VALUE = 300;
   prizeMoney = 0;
   countdown: number = this.COUNT_RESET_VALUE;
+  senderAddress: string = "";
   // lastPrizeMoneyUpdate = new Date().getTime();
   walletConnected = false;
   contractUpdateInterval: any;
@@ -32,6 +34,14 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
+  isCryptoWalletAvailable() {
+    return this.contractService.isCryptoWalletAvailable;
+  }
+
+  handleWalletChange(e: any) {
+    this.openMetaMask(e.detail.value);
+  }
+
   getContractUpdates() {
     this.contractUpdateInterval = setInterval(() => {
       this.getTokenData();
@@ -39,9 +49,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   getTokenData() {
-    this.contractService.getContractUpdates().then(resp => {
-      this.countdown = this.calculateTimestampDifference(parseInt(resp[2]),  parseInt(resp[1]));
-      this.prizeMoney = parseInt(resp[0]) / (10 ** 18);
+    this.contractService.getContractUpdates().then((resp: any) => {
+      this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+      this.prizeMoney = resp["potEquity"];
       // this.countdown = resp.lastExecutedTimestamp;
     })
   }
@@ -68,9 +78,10 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   
-  openMetaMask(){
-    this.contractService.openMetamask().then(resp =>{
-      this.walletConnected = resp;
+  openMetaMask(walletType: ContractService.WALLET_TYPE) {
+    this.contractService.openWallet(walletType).then(resp =>{
+      this.walletConnected = resp ? true: false;
+      this.senderAddress = resp;
     })
   }
 
