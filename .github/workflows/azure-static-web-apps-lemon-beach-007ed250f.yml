@@ -39,7 +39,7 @@ jobs:
           app_location: "/" # App source code path
           api_location: "" # Api source code path - optional
           output_location: "" # Built app content directory - optional
-          app_build_command: 'npm install --legacy-peer-deps && npm run build -- --configuration ${{ env.AZURE_WEBAPP_NAME }}'
+          app_build_command: 'npm install --include=optional --legacy-peer-deps && npm run build -- --configuration ${{ env.AZURE_WEBAPP_NAME }}'
           ###### End of Repository/Build Configurations ######
 
       - name: Create Release
