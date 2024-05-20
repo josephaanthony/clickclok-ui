@@ -1,46 +1,94 @@
 name: Azure Static Web Apps CI/CD
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      azure_env:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+
+env:
+  AZURE_WEBAPP_NAME: ${{ format('{0}', github.event.inputs.azure_env) }}
+  PUBLISH_PROFILE: AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_BEACH_007ED250F
+  ENVIRONMENT_NAME: ${{github.event.inputs.azure_env}}
+  OWNER: DadyIn-ProductManagement
+  REPO: dadyin-product-ui
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    # if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
-          lfs: false
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_BEACH_007ED250F }}
+          azure_static_web_apps_api_token: ${{ secrets[env.PUBLISH_PROFILE] }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/" # App source code path
           api_location: "" # Api source code path - optional
-          output_location: "{angular.json#Object.values(data.projects)[0].architect.build.options.outputPath}" # Built app content directory - optional
+          output_location: "" # Built app content directory - optional
+          app_build_command: 'npm install --legacy-peer-deps && npm run build -- --configuration ${{ env.AZURE_WEBAPP_NAME }}'
           ###### End of Repository/Build Configurations ######
 
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_BEACH_007ED250F }}
-          action: "close"
+          tag_name: ${{ env.ENVIRONMENT_NAME }}_${{ github.run_number }}
+          # release_name: Release ${{ env.ENVIRONMENT_NAME }}
+          draft: false
+          prerelease: false'
+
+      - name: Delete older workflow runs
+        continue-on-error: true
+        run: |
+            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/actions/runs \
+            | jq '.workflow_runs[1:] | .[] | .id' \
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/{}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete older tags
+        continue-on-error: true
+        run: |
+            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/git/refs/tags \
+            | jq '.[:2] | .[] | select( .ref | startswith("refs/tags/${{ env.ENVIRONMENT_NAME }}")) | .ref' \
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/git/{}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Delete older releases
+        continue-on-error: true
+        run: |
+            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/releases \
+            | jq '.[] | .id' \
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/releases/{}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  close_pull_request_job:
+      if: github.event_name == 'pull_request' && github.event.action == 'closed'
+      runs-on: ubuntu-latest
+      name: Close Pull Request Job
+      steps:
+        - name: Close Pull Request
+          id: closepullrequest
+          uses: Azure/static-web-apps-deploy@v1
+          with:
+            azure_static_web_apps_api_token: ${{ secrets[env.PUBLISH_PROFILE] }}
+            action: "close"
