@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
+  production: false,
 
   app: {
     baseUrl: "https://clikclok.azurewebsites.net"
