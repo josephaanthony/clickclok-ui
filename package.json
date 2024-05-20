@@ -68,5 +68,17 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.2.2"
   },
+  "optionalDependencies": {
+    "@nx/nx-darwin-arm64": "19.0.4",
+    "@nx/nx-darwin-x64": "19.0.4",
+    "@nx/nx-freebsd-x64": "19.0.4",
+    "@nx/nx-linux-arm-gnueabihf": "19.0.4",
+    "@nx/nx-linux-arm64-gnu": "19.0.4",
+    "@nx/nx-linux-arm64-musl": "19.0.4",
+    "@nx/nx-linux-x64-gnu": "19.0.4",
+    "@nx/nx-linux-x64-musl": "19.0.4",
+    "@nx/nx-win32-arm64-msvc": "19.0.4",
+    "@nx/nx-win32-x64-msvc": "19.0.4"
+  },
   "description": "An Ionic project"
 }
