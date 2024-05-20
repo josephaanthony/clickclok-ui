@@ -56,10 +56,12 @@ export class ContractService {
             }
         }
         else {
-            let claims = this.gameService.login();
-            if(claims) {
-                this.senderAddress = claims["email"];
-            }
+            this.senderAddress = (await this.gameService.login()).email
+
+            // let claims = this.gameService.login();
+            // if(claims) {
+            //     this.senderAddress = claims["email"];
+            // }
         }
 
         this.walletType = walletType;

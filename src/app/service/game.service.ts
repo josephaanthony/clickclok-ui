@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable, OnInit } from "@angular/core";
 import { environment } from '../../environments/environment';
 import { lastValueFrom } from 'rxjs';
-import { OAuthService } from "angular-oauth2-oidc";
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { ContractService } from "./contract.service";
 
 @Injectable({
@@ -11,27 +11,35 @@ import { ContractService } from "./contract.service";
 export class GameService {
     HTTP_OPTIONS = { withCredentials: false };
 
-    constructor(private httpClient: HttpClient, private oauthService: OAuthService) {
-        this.oauthService.configure({
-            issuer: "https://accounts.google.com",
-            strictDiscoveryDocumentValidation: false,
-            clientId: "277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com",
-            redirectUri: window.location.origin,
-            scope: "openid profile email"
+    constructor(private httpClient: HttpClient) {
+        // this.oauthService.configure({
+        //     issuer: "https://accounts.google.com",
+        //     strictDiscoveryDocumentValidation: false,
+        //     clientId: "277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com",
+        //     redirectUri: window.location.origin,
+        //     scope: "openid profile email"
+        // });
+
+        GoogleAuth.initialize({
+            clientId: '277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com',
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true,
         });
 
-        this.oauthService.setupAutomaticSilentRefresh();
-        this.oauthService.loadDiscoveryDocumentAndTryLogin();
+        // this.oauthService.setupAutomaticSilentRefresh();
+        // this.oauthService.loadDiscoveryDocumentAndTryLogin();
     }
 
-    login() : any {
-        let claims = this.oauthService.getIdentityClaims();
-        if(claims == null) {
-            this.oauthService.initImplicitFlow();
-        }
-        console.log("Claims: " + claims);
+    async login() {
+        return await GoogleAuth.signIn();
 
-        return claims;
+        // let claims = this.oauthService.getIdentityClaims();
+        // if(claims == null) {
+        //     this.oauthService.initImplicitFlow();
+        // }
+        // console.log("Claims: " + googleUser);
+
+        // return googleUser;
     }
 
     async getAirDrop(name: string, senderAddress: string) {

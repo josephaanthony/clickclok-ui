@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "io.clickclok.ui"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "io.clickclok.ui"
         minSdkVersion rootProject.ext.minSdkVersion

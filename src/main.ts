@@ -7,7 +7,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
-import { provideOAuthClient } from 'angular-oauth2-oidc';
+// import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideHttpClient } from '@angular/common/http';
 
 if (environment.production) {
@@ -20,7 +20,7 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes),
     provideAnimations(),
-    provideOAuthClient(),
+    // provideOAuthClient(),
     provideHttpClient()
   ],
 });
