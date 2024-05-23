@@ -15,7 +15,6 @@ env:
   AZURE_WEBAPP_NAME: ${{ format('{0}', github.event.inputs.azure_env) }}
   PUBLISH_PROFILE: "AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_BEACH_007ED250F"
   ENVIRONMENT_NAME: ${{github.event.inputs.azure_env}}
-  OWNER: ${{ github.repository_owner }}
   REPO: ${{ github.repository }}
   NODE_VERSION: 18.15.0
 
@@ -57,18 +56,18 @@ jobs:
       - name: Delete older workflow runs
         continue-on-error: true
         run: |
-            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/actions/runs \
+            gh api /repos/${{ env.REPO }}/actions/runs \
             | jq '.workflow_runs[1:] | .[] | .id' \
-            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/{}
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.REPO }}/actions/runs/{}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete older tags
         continue-on-error: true
         run: |
-            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/git/refs/tags \
+            gh api /repos/${{ env.REPO }}/git/refs/tags \
             | jq '.[:2] | .[] | select( .ref | startswith("refs/tags/${{ env.ENVIRONMENT_NAME }}")) | .ref' \
-            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/git/{}
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.REPO }}/git/{}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -76,9 +75,9 @@ jobs:
       - name: Delete older releases
         continue-on-error: true
         run: |
-            gh api /repos/${{ env.OWNER }}/${{ env.REPO }}/releases \
+            gh api /repos/${{ env.REPO }}/releases \
             | jq '.[] | .id' \
-            | xargs -t -I{} gh api -X DELETE /repos/${{ env.OWNER }}/${{ env.REPO }}/releases/{}
+            | xargs -t -I{} gh api -X DELETE /repos/${{ env.REPO }}/releases/{}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
