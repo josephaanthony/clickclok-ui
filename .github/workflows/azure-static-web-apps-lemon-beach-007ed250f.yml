@@ -15,8 +15,8 @@ env:
   AZURE_WEBAPP_NAME: ${{ format('{0}', github.event.inputs.azure_env) }}
   PUBLISH_PROFILE: "AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_BEACH_007ED250F"
   ENVIRONMENT_NAME: ${{github.event.inputs.azure_env}}
-  OWNER: DadyIn-ProductManagement
-  REPO: dadyin-product-ui
+  OWNER: ${{ github.repository_owner }}
+  REPO: ${{ github.repository }}
   NODE_VERSION: 18.15.0
 
 jobs:
