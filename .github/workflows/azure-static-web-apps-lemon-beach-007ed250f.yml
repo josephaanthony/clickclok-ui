@@ -7,9 +7,9 @@ on:
         type: choice
         description: Environment
         required: true
-        default: dev
+        default: development
         options:
-          - dev
+          - development
 
 env:
   AZURE_WEBAPP_NAME: ${{ format('{0}', github.event.inputs.azure_env) }}

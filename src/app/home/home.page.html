@@ -23,6 +23,14 @@
                   <ion-select-option value="GOOGLE">Google  ({{senderAddress}})</ion-select-option>
                 </ion-select>
               </ion-button>
+
+              <!-- Set up a container element for the button -->
+              <ion-button>
+                <div id="paypal-button-container"></div>
+              </ion-button>
+              
+
+
               <!-- <ion-button [disabled]="walletConnected" (click)= "openMetaMask()">Connect Wallet</ion-button> -->
               <!-- {{ formatCountdown() }} -->
             </ion-text>

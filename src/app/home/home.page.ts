@@ -6,6 +6,8 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
 
+declare function initPaypal(): any;
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -29,6 +31,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     // this.getContractUpdates();
+    initPaypal();
   }
 
   ngOnDestroy() {
