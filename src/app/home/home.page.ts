@@ -5,6 +5,7 @@ import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component'
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
+import { loadScript } from "@paypal/paypal-js";
 
 declare function initPaypal(): any;
 
@@ -30,8 +31,39 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.loadPaypalScript();
+
     // this.getContractUpdates();
-    initPaypal();
+    // initPaypal();
+  }
+
+  async loadPaypalScript() {
+    let paypal: any;
+
+    try {
+        paypal = await loadScript({ clientId: "AUsmsmTQpWACUHNPRvhQuQkgfKVB-qSkOIRJoPB5oarQHnzqXcEGY8nfohUOjFedyZAnq30wsPafNiw9" });
+        
+        // paypal.Buttons().render('#paypal-button-container');
+
+        var self = this;
+
+        paypal.Buttons({
+          onApprove(data: any) {
+            debugger;
+            alert(data);
+            self.contractService.confirmPayment(data);
+          },
+
+          onError(err: any) {
+            // For example, redirect to a specific error page
+            debugger;
+            alert(err);
+          }
+          
+        }).render('#paypal-button-container');
+    } catch (error) {
+        console.error("failed to load the PayPal JS SDK script", error);
+    }
   }
 
   ngOnDestroy() {

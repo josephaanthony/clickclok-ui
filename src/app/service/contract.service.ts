@@ -70,6 +70,10 @@ export class ContractService {
         return this.senderAddress;
     }
 
+    async confirmPayment(data: any) {
+        this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress, data);
+    }
+
     async getContractUpdates() {
         let result: any;
         if(this.web3) {

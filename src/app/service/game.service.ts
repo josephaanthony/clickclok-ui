@@ -42,6 +42,13 @@ export class GameService {
         // return googleUser;
     }
 
+    async confirmPayment(name: string, senderAddress: string, paymentData: any) {
+        paymentData.clikClokName = name;
+        paymentData.senderAddress = senderAddress;
+
+        return await lastValueFrom(this.httpClient.post(environment.app.baseUrl + "/cc-api/confirmPayment", paymentData, this.HTTP_OPTIONS));
+    }
+
     async getAirDrop(name: string, senderAddress: string) {
         return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/airDrop?name=" + name + "&senderAddress=" + senderAddress,
             this.HTTP_OPTIONS));
@@ -56,7 +63,7 @@ export class GameService {
     }
 
     async getContractUpdates(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE) {
-        return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clickcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
+        return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
             this.HTTP_OPTIONS));
     }
 

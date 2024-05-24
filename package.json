@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
-  "engines" : { 
-    "node" : ">=18.13" 
+  "engines": {
+    "node": ">=18.13"
   },
   "scripts": {
     "ng": "ng",
@@ -32,6 +32,7 @@
     "@capacitor/status-bar": "^6.0.0",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@ionic/angular": "^7.5.0",
+    "@paypal/paypal-js": "^8.0.5",
     "@types/uuid": "^9.0.8",
     "highcharts": "^11.4.0",
     "ionicons": "^7.2.1",
