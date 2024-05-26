@@ -34,6 +34,7 @@
     "@ionic/angular": "^7.5.0",
     "@paypal/paypal-js": "^8.0.5",
     "@stomp/rx-stomp": "^2.0.0",
+    "@stomp/stompjs": "^7.0.0",
     "@types/uuid": "^9.0.8",
     "highcharts": "^11.4.0",
     "ionicons": "^7.2.1",
