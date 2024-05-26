@@ -6,6 +6,7 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
 import { loadScript } from "@paypal/paypal-js";
+import { Observable, concatMap, delay, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
 
 declare function initPaypal(): any;
 
@@ -26,6 +27,7 @@ export class HomePage implements OnInit, OnDestroy {
   // lastPrizeMoneyUpdate = new Date().getTime();
   walletConnected = false;
   contractUpdateInterval: any;
+  userWalletBalance = 0;
 
   constructor(private contractService: ContractService) {    
   }
@@ -49,8 +51,6 @@ export class HomePage implements OnInit, OnDestroy {
 
         paypal.Buttons({
           onApprove(data: any) {
-            debugger;
-            alert(data);
             self.contractService.confirmPayment(data);
           },
 
@@ -83,12 +83,60 @@ export class HomePage implements OnInit, OnDestroy {
     }, 1000)
   }
 
-  getTokenData() {
-    this.contractService.getContractUpdates().then((resp: any) => {
+  getTokenData() : void {
+    this.contractService.getContractUpdateOb().pipe(
+      delay(3000), 
+      take(1),
+      repeat()
+      // takeUntilDestroyed(this.destroyRef)
+    ).subscribe((resp: any): void => {
       this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
       this.prizeMoney = resp["potEquity"];
-      // this.countdown = resp.lastExecutedTimestamp;
-    })
+      this.userWalletBalance = resp["userWalletBalance"];
+      
+      // return this.getTokenData();
+    });
+
+
+  //   this.contractService.getContractUpdateOb().pipe(
+  //     // catchError((error: Error) => of({} as logViewDto)
+  //     repeatWhen(obs => obs.pipe(delay(1000))), 
+  //     take(1)
+  //     // takeUntilDestroyed(this.destroyRef)
+  // ).subscribe((resp: any) => {
+  //       this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+  //       this.prizeMoney = resp["potEquity"];
+  //       this.userWalletBalance = resp["userWalletBalance"]  
+  // })
+
+
+    // interval(3000).pipe(
+    //   switchMap(i => this.contractService.getContractUpdates())
+    // ).subscribe(
+    //   resp => { 
+    //     this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+    //     this.prizeMoney = resp["potEquity"];
+    //     this.userWalletBalance = resp["userWalletBalance"]
+    //   }
+    // );
+
+
+    // interval(5000).subscribe(x => {
+    //   this.contractService.getContractUpdates().then((resp: any) => {
+    //     this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+    //     this.prizeMoney = resp["potEquity"];
+    //     this.userWalletBalance = resp["userWalletBalance"]
+    //     // this.countdown = resp.lastExecutedTimestamp;
+    //   });
+    // });
+
+
+    // this.contractService.getContractUpdates().then((resp: any) => {
+    //   this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+    //   this.prizeMoney = resp["potEquity"];
+    //   this.userWalletBalance = resp["userWalletBalance"]
+    //   // this.countdown = resp.lastExecutedTimestamp;
+    // })
   }
 
 

@@ -5,12 +5,12 @@
         <ion-row>
           <ion-col class="center">
             <!-- $$ {{ prizeMoney }} -->
-            <ion-button [disabled]="!walletConnected" (click)= "getTokenData()">Get Token Data</ion-button>
+            <ion-button (click)= "getTokenData()">Get Token Data</ion-button>
           </ion-col>
           <ion-col class="center">
             <ion-text color="primary">
               <h1 class="no-margin">Clik Clok</h1>
-              <h6 class="no-margin">({{senderAddress}})</h6>
+              <h6 class="no-margin">({{senderAddress}}) - ${{userWalletBalance}}</h6>
             </ion-text>
           </ion-col>
           <ion-col class="center">

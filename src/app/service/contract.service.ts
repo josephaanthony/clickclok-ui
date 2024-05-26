@@ -4,6 +4,7 @@ import { AlertController } from '@ionic/angular';
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from './game.service';
 import * as moment from 'moment-timezone'
+import { Observable, of, switchMap } from 'rxjs';
 
 declare const window: any;
 
@@ -97,6 +98,13 @@ export class ContractService {
 
         console.log('Result:', result);
         return result;
+    }
+
+    getContractUpdateOb(): Observable<Object> {
+        return of(null) 
+        .pipe(switchMap(_ => {
+            return this.gameService.getContractUpdatesOb(this.GAME_NAME, this.senderAddress, this.walletType)
+        }));
     }
 
     async getAirDrop() {

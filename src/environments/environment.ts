@@ -6,7 +6,8 @@ export const environment = {
   production: false,
 
   app: {
-    baseUrl: "http://localhost:8080"
+    baseUrl: "http://localhost:8080",
+    socketUrl: "localhost:8080"
   }
 };
 

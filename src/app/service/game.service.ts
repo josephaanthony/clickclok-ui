@@ -1,9 +1,11 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnInit } from "@angular/core";
 import { environment } from '../../environments/environment';
-import { lastValueFrom } from 'rxjs';
+import { Observable, lastValueFrom, map, switchMap, timer } from 'rxjs';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { ContractService } from "./contract.service";
+import { RxStompService } from "./rx-stomp.service";
+import moment from "moment";
 
 @Injectable({
     providedIn: 'root',
@@ -11,7 +13,7 @@ import { ContractService } from "./contract.service";
 export class GameService {
     HTTP_OPTIONS = { withCredentials: false };
 
-    constructor(private httpClient: HttpClient) {
+    constructor(private httpClient: HttpClient, private rxStompService: RxStompService) {
         // this.oauthService.configure({
         //     issuer: "https://accounts.google.com",
         //     strictDiscoveryDocumentValidation: false,
@@ -63,8 +65,45 @@ export class GameService {
     }
 
     async getContractUpdates(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE) {
-        return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
-            this.HTTP_OPTIONS));
+        // return timer(500).pipe(
+        //     switchMap(()=>
+        //         this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
+        //         this.HTTP_OPTIONS).pipe(
+        //             map( (result: any) => { 
+        //                 console.log(result);
+
+                        
+        //                 // result = {
+        //                 //     ... result,
+        //                 //     currentTimestamp: moment().unix(),
+        //                 //     lastExecutedTimestamp: moment(result.lastExecutedTimestamp).unix()
+        //                 // }
+
+        //                 return result;
+        //             })
+        //         )
+        //     )
+        // );
+
+        // return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
+        //     this.HTTP_OPTIONS));
+
+
+        // this.rxStompService.watch('/topic/gameMessage').subscribe((message: any) => {
+        //     console.log("Received Message: " + message);
+        //     // this.receivedMessages.push(message.body);
+        // });
+
+        return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikclokviews?name=" + name + "&senderAddress=" + senderAddress,
+        this.HTTP_OPTIONS));
+
+
+
+    }
+
+    getContractUpdatesOb(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE): Observable<Object> { 
+        return this.httpClient.get(environment.app.baseUrl + "/cc-api/clikclokviews?name=" + name + "&senderAddress=" + senderAddress,
+        this.HTTP_OPTIONS);
     }
 
     async stake(name: string, walletType: ContractService.WALLET_TYPE, senderAddress: string, value: number) {
