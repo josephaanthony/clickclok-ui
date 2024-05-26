@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, 
+  IonFab, IonFabButton, IonFabList, IonLabel, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption } from '@ionic/angular/standalone';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 import { GameAreaComponent } from '../game/game-area.component';
@@ -16,7 +17,7 @@ declare function initPaypal(): any;
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
-    IonList, IonSelect, IonSelectOption, IonItem, IonItemOption,
+    IonList, IonSelect, IonSelectOption, IonItem, IonLabel, IonItemOption, IonFab, IonFabButton, IonFabList,
     CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent],
 })
 export class HomePage implements OnInit, OnDestroy {

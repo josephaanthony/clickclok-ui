@@ -24,14 +24,6 @@
                 </ion-select>
               </ion-button>
 
-              <!-- Set up a container element for the button -->
-              <ion-button>
-                <div id="paypal-button-container"></div>
-                <p id="result-message"></p>
-              </ion-button>
-              
-
-
               <!-- <ion-button [disabled]="walletConnected" (click)= "openMetaMask()">Connect Wallet</ion-button> -->
               <!-- {{ formatCountdown() }} -->
             </ion-text>
@@ -57,7 +49,29 @@
       <!-- <app-bouncing-ball ballText="{{prizeMoney}}"></app-bouncing-ball> -->
       <app-game-area prizeMoneyInput={{prizeMoney}} currentTimeInput={{countdown}}></app-game-area>
     </div>
+
+    <!-- <div>
+        <ion-button>
+          <div id="paypal-button-container"></div>
+          <p id="result-message"></p>
+        </ion-button>
+    </div> -->
   </div>
+
+  <ion-fab slot="fixed" vertical="top" horizontal="end">
+    <ion-fab-button class="buy_token_button">
+      <ion-label class="buy_token_label">
+          Buy More Tokens
+      </ion-label>
+      <ion-icon name="chevron-down-circle" size="large"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="bottom" class="paypal_options">
+      <ion-content>
+        <div id="paypal-button-container"></div>
+          <p id="result-message"></p>
+      </ion-content>
+    </ion-fab-list>
+  </ion-fab>
 
 </ion-content>
 

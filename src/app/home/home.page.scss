@@ -9,6 +9,28 @@
   height: 100vh;
 }
 
+.paypal_options {
+  width: 200px;
+  height: 200px;
+  left: -25px;
+  top: -150px;
+}
+
+.buy_token_button {
+  width: 207px;
+  height: 53px;
+  --border-radius: 15px;
+  --background: #ff6e6e;
+  left: -30px;
+  position: relative;
+}
+
+.buy_token_label {
+  color: #4a4609;
+  font-size: 20px;
+  margin: 35px;
+}
+
 .game-area {
   width: 600px;
   height: 400px;
