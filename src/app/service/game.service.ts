@@ -33,7 +33,11 @@ export class GameService {
     }
 
     async login() {
-        return await GoogleAuth.signIn();
+        return await GoogleAuth.signIn().catch((reason: any) => {
+            console.log("Error signing in 1" + reason);
+            console.log("Error signing in 2" + JSON.stringify(reason));
+            throw new Error("Error signing in " + reason);
+        });
 
         // let claims = this.oauthService.getIdentityClaims();
         // if(claims == null) {

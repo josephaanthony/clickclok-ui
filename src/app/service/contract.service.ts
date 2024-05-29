@@ -57,6 +57,7 @@ export class ContractService {
             }
         }
         else {
+            console.log("Calling gameService login");
             this.senderAddress = (await this.gameService.login()).email
 
             // let claims = this.gameService.login();
