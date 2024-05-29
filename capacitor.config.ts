@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'io.clikclok.ui',
   appName: 'clikclock-ui',
-  webDir: 'www',
+  webDir: 'dist',
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
