@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, 
   IonFab, IonFabButton, IonFabList, IonLabel, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption } from '@ionic/angular/standalone';
+import { refreshCircle, chevronDownCircle } from 'ionicons/icons';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
 import { loadScript } from "@paypal/paypal-js";
 import { Observable, concatMap, delay, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
+import { addIcons } from 'ionicons';
 
 declare function initPaypal(): any;
 
@@ -30,7 +32,9 @@ export class HomePage implements OnInit, OnDestroy {
   contractUpdateInterval: any;
   userWalletBalance = 0;
 
-  constructor(private contractService: ContractService) {    
+  constructor(private contractService: ContractService) {  
+    addIcons({refreshCircle});  
+    addIcons({chevronDownCircle});  
   }
 
   ngOnInit() {

@@ -17,3 +17,6 @@ ionic capacitor build android
 ionic capacitor build android --release
 
 keystore path: C:\Users\josep\DadyIn\Projects\keystore\clickclok.jks -> MyDrive/ClikClok
+
+
+keytool -list -v -keystore C:\Users\josep\.android\debug.keystore -alias androiddebugkey -storepass android -keypass android
