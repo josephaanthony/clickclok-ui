@@ -73,20 +73,13 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="body_content">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">
-        <!-- $$ {{ prizeMoney }} -->
-      </ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <div class="container">
+<ion-content [fullscreen]="true" class="body_content"> 
+  <ion-content class="container" slot="fixed">
     <div class="game-area">
-      <app-game-area prizeMoneyInput={{prizeMoney}} currentTimeInput={{countdown}}></app-game-area>
+      <!-- <app-game-area prizeMoneyInput={{prizeMoney}} currentTimeInput={{countdown}}></app-game-area> -->
+      <app-circle-area duration={{countdown}}></app-circle-area>
     </div>
-  </div>
+  </ion-content>
 
   <ion-fab slot="fixed" vertical="top" horizontal="end">
     <ion-fab-button class="buy_token_button">
@@ -103,9 +96,9 @@
     </ion-fab-list>
   </ion-fab>
 
-  <div class="prize_container">
+  <ion-content class="prize_container"  slot="fixed-bottom">
     $ {{prizeMoney}}
-  </div>
+  </ion-content>
 </ion-content>
 
 <ion-footer>

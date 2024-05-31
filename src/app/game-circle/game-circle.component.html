@@ -1,0 +1,16 @@
+<div class="countdown-timer">
+  <svg class="countdown-ring" width="50" height="50" viewBox="-10 5 150 110">
+    <defs>
+      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#108aff;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#d4e3f3;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+
+    <circle class="ring-background-out" cx="60" cy="60" r="60" />
+    <circle class="ring-background" cx="60" cy="60" r="54" />
+    <circle class="ring-progress" [attr.stroke-dasharray]="circumference" [attr.stroke-dashoffset]="offset" cx="60" cy="60" r="54" />
+    <circle class="ring-start" [attr.cx]="startX" [attr.cy]="startY" r="5" />
+  </svg>
+  <div class="countdown-text">{{ displayTime }}</div>
+</div>

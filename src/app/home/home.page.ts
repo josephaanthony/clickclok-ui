@@ -11,17 +11,18 @@ import { ContractService } from '../service/contract.service';
 import { loadScript } from "@paypal/paypal-js";
 import { Observable, concatMap, delay, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
 import { addIcons } from 'ionicons';
+import { GameCircleComponent } from "../game-circle/game-circle.component";
 
 declare function initPaypal(): any;
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
-  standalone: true,
-  imports: [IonMenuButton, IonButtons, IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
-    IonList, IonSelect, IonSelectOption, IonItem, IonLabel, IonItemOption, IonFab, IonFabButton, IonFabList, IonMenu,
-    CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent],
+    selector: 'app-home',
+    templateUrl: 'home.page.html',
+    styleUrls: ['home.page.scss'],
+    standalone: true,
+    imports: [IonMenuButton, IonButtons, IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
+        IonList, IonSelect, IonSelectOption, IonItem, IonLabel, IonItemOption, IonFab, IonFabButton, IonFabList, IonMenu,
+        CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent, GameCircleComponent]
 })
 export class HomePage implements OnInit, OnDestroy {
   COUNT_RESET_VALUE = 300;
