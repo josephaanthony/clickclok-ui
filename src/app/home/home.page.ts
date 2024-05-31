@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, 
   IonFab, IonFabButton, IonFabList, IonLabel, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption, IonMenu, IonButtons, IonMenuButton,
   MenuController } from '@ionic/angular/standalone';
@@ -33,6 +33,10 @@ export class HomePage implements OnInit, OnDestroy {
   walletConnected = false;
   contractUpdateInterval: any;
   userWalletBalance = 0;
+  tokenDataInitialized: boolean = false;
+  tokenValue = 30;
+
+  @ViewChild('payPalOpenButton') payPalOpenButton: IonFab | undefined;
 
   constructor(private contractService: ContractService, private menuCtrl: MenuController) {  
     addIcons({refreshCircle});  
@@ -64,7 +68,9 @@ export class HomePage implements OnInit, OnDestroy {
     let paypal: any;
 
     try {
-        paypal = await loadScript({ clientId: "AUsmsmTQpWACUHNPRvhQuQkgfKVB-qSkOIRJoPB5oarQHnzqXcEGY8nfohUOjFedyZAnq30wsPafNiw9" });
+        paypal = await loadScript({ clientId: "AUsmsmTQpWACUHNPRvhQuQkgfKVB-qSkOIRJoPB5oarQHnzqXcEGY8nfohUOjFedyZAnq30wsPafNiw9",
+          enableFunding: "venmo", currency: "USD", disableFunding: "paylater"
+        });
         
         // paypal.Buttons().render('#paypal-button-container');
 
@@ -72,7 +78,13 @@ export class HomePage implements OnInit, OnDestroy {
 
         paypal.Buttons({
           onApprove(data: any) {
-            self.contractService.confirmPayment(data);
+            self.contractService.confirmPayment(data)
+            .then(() => {
+              this.getTokenData();
+            })
+            .finally(() => {
+              self.payPalOpenButton?.close();
+            });
           },
 
           onError(err: any) {
@@ -106,6 +118,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   getTokenData() : void {
+    if(this.tokenDataInitialized) {
+      return;
+    }
+
+    this.tokenDataInitialized = true;
+
     this.contractService.getContractUpdateOb().pipe(
       delay(3000), 
       take(1),
@@ -115,7 +133,9 @@ export class HomePage implements OnInit, OnDestroy {
       this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
       this.prizeMoney = resp["potEquity"];
       this.userWalletBalance = resp["userWalletBalance"];
+      this.tokenValue = resp["gameStakeValue"];
       
+      this.tokenDataInitialized = true;
       // return this.getTokenData();
     });
 
@@ -194,7 +214,7 @@ export class HomePage implements OnInit, OnDestroy {
     // this.lastPrizeMoneyUpdate = new Date().getTime();
     // this.resetCountdown();
 
-    this.contractService.sendTransaction();
+    this.contractService.sendTransaction(this.tokenValue);
   }
 
   formatCountdown() {

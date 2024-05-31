@@ -54,8 +54,11 @@
             </div>              
 
             <div *ngIf="senderAddress" class="menu-div">
+              <!-- <span style="display: table-cell; font-size: 15px; position: relative; top: -7px; left: 6px;">
+                <ion-label>${{userWalletBalance}}</ion-label>                
+              </span> -->
                <span style="display: table-cell;">
-                <ion-icon name="person-circle-outline" style="top: -2px; position: relative; color: var(--ion-color-primary, #3880ff) !important;"></ion-icon>
+                <ion-icon name="person-circle-outline" style="top: -2px; position: relative; color: var(--ion-color-primary, #3880ff) !important; left: 10px"></ion-icon>
               </span>
               <span style="display: table-cell;">
                 <ion-buttons>
@@ -81,7 +84,7 @@
     </div>
   </ion-content>
 
-  <ion-fab slot="fixed" vertical="top" horizontal="end">
+  <ion-fab slot="fixed" vertical="top" horizontal="end" #payPalOpenButton>
     <ion-fab-button class="buy_token_button">
       <ion-label class="buy_token_label">
           Buy More Tokens
