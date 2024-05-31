@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable, OnInit } from "@angular/core";
 import { environment } from '../../environments/environment';
 import { Observable, lastValueFrom, map, switchMap, timer } from 'rxjs';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Authentication, GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { ContractService } from "./contract.service";
 import { RxStompService } from "./rx-stomp.service";
 import moment from "moment";
@@ -13,23 +13,41 @@ import moment from "moment";
 export class GameService {
     HTTP_OPTIONS = { withCredentials: false };
 
-    constructor(private httpClient: HttpClient, private rxStompService: RxStompService) {
-        // this.oauthService.configure({
-        //     issuer: "https://accounts.google.com",
-        //     strictDiscoveryDocumentValidation: false,
-        //     clientId: "277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com",
-        //     redirectUri: window.location.origin,
-        //     scope: "openid profile email"
-        // });
+    CLIENT_ID = '277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com';
+    WEB_API_KEY = 'AIzaSyDz1Uauhj8sFaLs8GunpPJ1hvn7d9XFTVM';
 
-        GoogleAuth.initialize({
-            clientId: '277006726082-fp7gnbsf2pv4pcih78kjf9on9sdss8fp.apps.googleusercontent.com',
+
+    constructor(private httpClient: HttpClient, private rxStompService: RxStompService) {
+    }
+
+    async initializeAuth(): Promise<any> {
+        return await GoogleAuth.initialize({
+            clientId: this.CLIENT_ID,
             scopes: ['profile', 'email'],
             grantOfflineAccess: true,
+        }).then(() => {
+            return GoogleAuth.refresh()
+                .then((data: Authentication) => {
+                    if (data.accessToken) {
+                        let userData = this.getUserProfileData(data.accessToken);
+                        return userData;
+                    } else {
+                        return null;
+                    }
+                })
+        }).catch(err => {
+            console.log(err);
         });
+    }
 
-        // this.oauthService.setupAutomaticSilentRefresh();
-        // this.oauthService.loadDiscoveryDocumentAndTryLogin();
+    async getUserProfileData(token: string) {
+        const options = {
+          url: `https://www.googleapis.com/oauth2/v2/userinfo?key=` + this.WEB_API_KEY + `&oauth_token=${token}`,
+          headers:{'Content-Type': 'application/json'}
+        };
+        // const response = await this.httpClient.get({ ...options, method: 'GET' });
+        const response = await lastValueFrom(this.httpClient.get(options.url));
+        return response;
     }
 
     async login() {
@@ -38,14 +56,14 @@ export class GameService {
             console.log("Error signing in 2" + JSON.stringify(reason));
             throw new Error("Error signing in " + reason);
         });
+    }
 
-        // let claims = this.oauthService.getIdentityClaims();
-        // if(claims == null) {
-        //     this.oauthService.initImplicitFlow();
-        // }
-        // console.log("Claims: " + googleUser);
-
-        // return googleUser;
+    async logOut() {
+        return GoogleAuth.signOut().catch((reason: any) => {
+            console.log("Error signing in 1" + reason);
+            console.log("Error signing in 2" + JSON.stringify(reason));
+            throw new Error("Error signing in " + reason);
+        });
     }
 
     async confirmPayment(name: string, senderAddress: string, paymentData: any) {

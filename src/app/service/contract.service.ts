@@ -28,6 +28,11 @@ export class ContractService {
         this.isCryptoWalletAvailable = (typeof window.ethereum !== 'undefined' || typeof window.web3 !== 'undefined')
     }
 
+    public initializeAuth = async(): Promise<string> => {
+        this.senderAddress = (await this.gameService.initializeAuth());
+        return this.senderAddress;
+    }
+
     public openWallet = async (walletType: ContractService.WALLET_TYPE): Promise<string> => {
         if(walletType == ContractService.WALLET_TYPE.METAMASK) {
             if (typeof window.ethereum !== 'undefined') {
@@ -58,7 +63,7 @@ export class ContractService {
         }
         else {
             console.log("Calling gameService login");
-            this.senderAddress = (await this.gameService.login()).email
+            this.senderAddress = (await this.gameService.login())
 
             // let claims = this.gameService.login();
             // if(claims) {
@@ -68,12 +73,16 @@ export class ContractService {
 
         this.walletType = walletType;
 
-        this.gameService.registerUser(this.GAME_NAME, this.senderAddress, this.walletType);
+        this.gameService.registerUser(this.GAME_NAME, this.senderAddress.email, this.walletType);
         return this.senderAddress;
     }
 
+    async logOutWallet() {
+        return this.gameService.logOut().then(() => this.senderAddress = null);
+    }
+
     async confirmPayment(data: any) {
-        this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress, data);
+        this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data);
     }
 
     async getContractUpdates() {
@@ -87,7 +96,7 @@ export class ContractService {
             }
             // const result2 = await this.contract.methods.lastExecutedTimestamp().call();    
         } else {
-            result = await this.gameService.getContractUpdates(this.GAME_NAME, this.senderAddress, this.walletType);
+            result = await this.gameService.getContractUpdates(this.GAME_NAME, this.senderAddress.email, this.walletType);
 
             result = {
                 ... result,
@@ -104,7 +113,7 @@ export class ContractService {
     getContractUpdateOb(): Observable<Object> {
         return of(null) 
         .pipe(switchMap(_ => {
-            return this.gameService.getContractUpdatesOb(this.GAME_NAME, this.senderAddress, this.walletType)
+            return this.gameService.getContractUpdatesOb(this.GAME_NAME, this.senderAddress.email, this.walletType)
         }));
     }
 
@@ -114,7 +123,7 @@ export class ContractService {
         if(this.web3) {
             result = await this.contract.methods.getAirDrop().send({ from: this.senderAddress });    
         } else {
-            result = this.gameService.getAirDrop(this.GAME_NAME, this.senderAddress);
+            result = this.gameService.getAirDrop(this.GAME_NAME, this.senderAddress.email);
         }
 
         console.log('Result:', result);

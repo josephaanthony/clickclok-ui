@@ -49,7 +49,7 @@ export class GameAreaComponent implements OnInit {
       },
   
       title: {
-          text: '$$ 0'
+          text: ''
       },
   
       pane: {
@@ -149,7 +149,7 @@ export class GameAreaComponent implements OnInit {
       }
 
       if(prizeMoneyInput) {
-        this.chart.setTitle({ text: '$$ ' + prizeMoneyInput.currentValue });
+        // this.chart.setTitle({ text: '$$ ' + prizeMoneyInput.currentValue });
       }
     }
   }

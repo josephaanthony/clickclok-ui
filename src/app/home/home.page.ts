@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow, IonText, IonIcon, 
-  IonFab, IonFabButton, IonFabList, IonLabel, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption } from '@ionic/angular/standalone';
-import { refreshCircle, chevronDownCircle } from 'ionicons/icons';
+  IonFab, IonFabButton, IonFabList, IonLabel, IonSelect, IonList, IonItem, IonItemOption, IonSelectOption, IonMenu, IonButtons, IonMenuButton,
+  MenuController } from '@ionic/angular/standalone';
+import { refreshCircle, chevronDownCircle, logInOutline, logOutOutline, personCircleOutline } from 'ionicons/icons';
 import { BouncingBallComponent } from '../bouncing-ball/bouncing-ball.component';
 import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ball-simple.component';
 import { GameAreaComponent } from '../game/game-area.component';
@@ -18,30 +19,44 @@ declare function initPaypal(): any;
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
-    IonList, IonSelect, IonSelectOption, IonItem, IonLabel, IonItemOption, IonFab, IonFabButton, IonFabList,
+  imports: [IonMenuButton, IonButtons, IonIcon, IonText, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonGrid, IonCol, IonRow,
+    IonList, IonSelect, IonSelectOption, IonItem, IonLabel, IonItemOption, IonFab, IonFabButton, IonFabList, IonMenu,
     CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
   COUNT_RESET_VALUE = 300;
   prizeMoney = 0;
   countdown: number = this.COUNT_RESET_VALUE;
-  senderAddress: string = "";
+  senderAddress: any;
   // lastPrizeMoneyUpdate = new Date().getTime();
   walletConnected = false;
   contractUpdateInterval: any;
   userWalletBalance = 0;
 
-  constructor(private contractService: ContractService) {  
+  constructor(private contractService: ContractService, private menuCtrl: MenuController) {  
     addIcons({refreshCircle});  
     addIcons({chevronDownCircle});  
+    addIcons({logInOutline}); 
+    addIcons({logOutOutline});
+    addIcons({personCircleOutline}) 
   }
 
   ngOnInit() {
     this.loadPaypalScript();
+    this.contractService.initializeAuth().then(resp => {
+      this.walletConnected = resp ? true: false;
+      this.senderAddress = resp;
+    });
 
     // this.getContractUpdates();
     // initPaypal();
+  }
+
+  openMetaMask(walletType: ContractService.WALLET_TYPE) {
+    this.contractService.openWallet(walletType).then(resp =>{
+      this.walletConnected = resp ? true: false;
+      this.senderAddress = resp;
+    })
   }
 
   async loadPaypalScript() {
@@ -79,7 +94,8 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   handleWalletChange(e: any) {
-    this.openMetaMask(e.detail.value);
+    // this.openMetaMask(e.detail.value);
+    this.openMetaMask(ContractService.WALLET_TYPE.GOOGLE);
   }
 
   getContractUpdates() {
@@ -165,12 +181,11 @@ export class HomePage implements OnInit, OnDestroy {
     })
   }
 
-  
-  openMetaMask(walletType: ContractService.WALLET_TYPE) {
-    this.contractService.openWallet(walletType).then(resp =>{
-      this.walletConnected = resp ? true: false;
-      this.senderAddress = resp;
-    })
+  logOut() {
+    this.contractService.logOutWallet().then(() => {
+      this.senderAddress = null;
+      this.menuCtrl.close();
+    });
   }
 
   incrementPrizeMoney() {
