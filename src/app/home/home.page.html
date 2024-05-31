@@ -99,12 +99,14 @@
     </ion-fab-list>
   </ion-fab>
 
-  <ion-fab slot="fixed" vertical="top" horizontal="start">
-    <ion-content>
-      $ {{prizeMoney}}
-    </ion-content>
-  </ion-fab>
+  <!-- <ion-fab slot="fixed" vertical="top" horizontal="start">
+  </ion-fab> -->
 </ion-content>
+<ion-footer style="margin-bottom: 20px; box-shadow: none;">
+  <ion-label style="justify-content: center; display: flex;" class="prize_container">
+    $ {{prizeMoney}}
+  </ion-label>
+</ion-footer>
 
 <ion-footer>
   <ion-button [disabled]="!walletConnected" expand="block" (click)="incrementPrizeMoney()">Play JLTR</ion-button>

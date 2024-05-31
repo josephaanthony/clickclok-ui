@@ -34,7 +34,7 @@ export class HomePage implements OnInit, OnDestroy {
   contractUpdateInterval: any;
   userWalletBalance = 0;
   tokenDataInitialized: boolean = false;
-  tokenValue = 30;
+  tokenValue = 1;
 
   @ViewChild('payPalOpenButton') payPalOpenButton: IonFab | undefined;
 
