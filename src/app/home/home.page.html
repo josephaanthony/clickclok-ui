@@ -99,9 +99,11 @@
     </ion-fab-list>
   </ion-fab>
 
-  <ion-content class="prize_container"  slot="fixed-bottom">
-    $ {{prizeMoney}}
-  </ion-content>
+  <ion-fab slot="fixed" vertical="top" horizontal="start">
+    <ion-content>
+      $ {{prizeMoney}}
+    </ion-content>
+  </ion-fab>
 </ion-content>
 
 <ion-footer>
