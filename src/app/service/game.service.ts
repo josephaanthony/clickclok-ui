@@ -66,11 +66,11 @@ export class GameService {
         });
     }
 
-    async confirmPayment(name: string, senderAddress: string, paymentData: any) {
+    confirmPayment(name: string, senderAddress: string, paymentData: any): Observable<Object> {
         paymentData.clikClokName = name;
         paymentData.senderAddress = senderAddress;
 
-        return await lastValueFrom(this.httpClient.post(environment.app.baseUrl + "/cc-api/confirmPayment", paymentData, this.HTTP_OPTIONS));
+        return this.httpClient.post(environment.app.baseUrl + "/cc-api/confirmPayment", paymentData, this.HTTP_OPTIONS);
     }
 
     async getAirDrop(name: string, senderAddress: string) {

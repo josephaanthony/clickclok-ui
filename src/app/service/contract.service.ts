@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Web3 } from "web3";
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from './game.service';
 import * as moment from 'moment-timezone'
@@ -82,15 +82,32 @@ export class ContractService {
         return this.gameService.logOut().then(() => this.senderAddress = null);
     }
 
-    async confirmPayment(data: any) {
-        this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data).then()
-        .catch(err => {
-            this.alertService.showAlert({
-                header: 'Payment Error',
-                message: 'Error processing payment. Please contact support.',
-                buttons: ['OK'],
-              });
-        });
+    confirmPayment(data: any): Observable<Object> {  
+        return of(null)
+        .pipe(switchMap(_ => {
+            return this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data)        
+            .pipe(
+                map(resp => {
+                        this.alertService.showToast ({
+                            message: 'Payment Success',
+                            duration: 1500,
+                            position: 'top',
+                        });
+    
+                        return resp;
+                    }
+                ),
+                catchError(err => {
+                    this.alertService.showAlert({
+                        header: 'Payment Error',
+                        message: 'Error processing payment. Please contact support.',
+                        buttons: ['OK'],
+                      });
+                    console.log("Error Payment " + err);
+                    return throwError(() => err);
+                })
+            )
+        }))        
     }
 
     async getContractUpdates() {
@@ -130,11 +147,12 @@ export class ContractService {
                             buttons: ['OK'],
                         })
                     } else {
-                        this.alertService.showAlert({
-                            header: 'Status Error',
-                            message: 'Error getting latest game status. Please contact support.',
-                            buttons: ['OK'],
-                        })    
+                        console.log('Error getting latest game status.' + err);
+                        // this.alertService.showAlert({
+                        //     header: 'Status Error',
+                        //     message: 'Error getting latest game status. Please contact support.',
+                        //     buttons: ['OK'],
+                        // })    
                     }
                     return throwError(() => err);
                 })
@@ -175,6 +193,8 @@ export class ContractService {
                         buttons: ['OK'],
                       });    
                 }
+            }).then(resp => {
+
             });
         }
         console.log('Transaction sent!');

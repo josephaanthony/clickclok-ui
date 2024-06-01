@@ -9,9 +9,10 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
 import { loadScript } from "@paypal/paypal-js";
-import { Observable, concatMap, delay, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
+import { Observable, Subscription, catchError, concatMap, delay, finalize, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
 import { addIcons } from 'ionicons';
 import { GameCircleComponent } from "../game-circle/game-circle.component";
+import { AlertService } from '../service/alert.service';
 
 declare function initPaypal(): any;
 
@@ -35,10 +36,11 @@ export class HomePage implements OnInit, OnDestroy {
   userWalletBalance = 0;
   tokenDataInitialized: boolean = false;
   tokenValue = 1;
+  statusSubscription: Subscription | undefined;
 
   @ViewChild('payPalOpenButton') payPalOpenButton: IonFab | undefined;
 
-  constructor(private contractService: ContractService, private menuCtrl: MenuController) {  
+  constructor(private contractService: ContractService, private menuCtrl: MenuController, private alertService: AlertService) {  
     addIcons({refreshCircle});  
     addIcons({chevronDownCircle});  
     addIcons({logInOutline}); 
@@ -78,19 +80,24 @@ export class HomePage implements OnInit, OnDestroy {
 
         paypal.Buttons({
           onApprove(data: any) {
-            self.contractService.confirmPayment(data)
-            .then(() => {
-              this.getTokenData();
+            self.contractService.confirmPayment(data).pipe(
+              finalize(() => {
+                self.payPalOpenButton?.close();
+              })
+            ).subscribe((resp: any): void => {
+              this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+              this.prizeMoney = resp["potEquity"];
+              this.userWalletBalance = resp["userWalletBalance"];
+              this.tokenValue = resp["gameStakeValue"];
             })
-            .finally(() => {
-              self.payPalOpenButton?.close();
-            });
           },
-
           onError(err: any) {
             // For example, redirect to a specific error page
-            debugger;
-            alert(err);
+            self.alertService.showAlert({
+              header: 'Payment Error',
+              message: 'Error processing payment. Please contact support.',
+              buttons: ['OK'],
+            })
           }
           
         }).render('#paypal-button-container');
@@ -124,10 +131,15 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.tokenDataInitialized = true;
 
-    this.contractService.getContractUpdateOb().pipe(
+    this.statusSubscription = this.contractService.getContractUpdateOb().pipe(
       delay(3000), 
       take(1),
-      repeat()
+      repeat(),
+      catchError((err: any, caught: Observable<Object>) => {
+        this.tokenDataInitialized = false; 
+        console.log("Status check failed " + err?.message);
+        return caught;
+      })
       // takeUntilDestroyed(this.destroyRef)
     ).subscribe((resp: any): void => {
       this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
@@ -138,47 +150,11 @@ export class HomePage implements OnInit, OnDestroy {
       this.tokenDataInitialized = true;
       // return this.getTokenData();
     });
+  }
 
-
-  //   this.contractService.getContractUpdateOb().pipe(
-  //     // catchError((error: Error) => of({} as logViewDto)
-  //     repeatWhen(obs => obs.pipe(delay(1000))), 
-  //     take(1)
-  //     // takeUntilDestroyed(this.destroyRef)
-  // ).subscribe((resp: any) => {
-  //       this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-  //       this.prizeMoney = resp["potEquity"];
-  //       this.userWalletBalance = resp["userWalletBalance"]  
-  // })
-
-
-    // interval(3000).pipe(
-    //   switchMap(i => this.contractService.getContractUpdates())
-    // ).subscribe(
-    //   resp => { 
-    //     this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-    //     this.prizeMoney = resp["potEquity"];
-    //     this.userWalletBalance = resp["userWalletBalance"]
-    //   }
-    // );
-
-
-    // interval(5000).subscribe(x => {
-    //   this.contractService.getContractUpdates().then((resp: any) => {
-    //     this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-    //     this.prizeMoney = resp["potEquity"];
-    //     this.userWalletBalance = resp["userWalletBalance"]
-    //     // this.countdown = resp.lastExecutedTimestamp;
-    //   });
-    // });
-
-
-    // this.contractService.getContractUpdates().then((resp: any) => {
-    //   this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-    //   this.prizeMoney = resp["potEquity"];
-    //   this.userWalletBalance = resp["userWalletBalance"]
-    //   // this.countdown = resp.lastExecutedTimestamp;
-    // })
+  public endStatusSubscription() {
+    this.statusSubscription?.unsubscribe();
+    this.tokenDataInitialized = false;
   }
 
 

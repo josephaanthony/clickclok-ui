@@ -22,13 +22,18 @@
     <ion-title>
       <ion-grid>
         <ion-row>
-          <ion-col class="center" size="2">
-            <ion-button size="small" (click)="getTokenData()">
-              <ion-icon slot="icon-only" name="refresh-circle"></ion-icon>
-            </ion-button>
+          <ion-col class="center" size="4">
+            <div class="token-div">
+              <ion-button size="small" (click)="getTokenData()">
+                <ion-icon slot="icon-only" name="refresh-circle"></ion-icon>
+              </ion-button>  
+            </div>
+            <div class="status-div">
+              <div [ngStyle]="{'background-color': tokenDataInitialized ? '#99ceeb' : 'grey'}" class="status-circle" (click)="endStatusSubscription()"></div>
+            </div>
           </ion-col>
 
-          <ion-col class="center" size="2"></ion-col>
+          <!-- <ion-col class="center" size="2"></ion-col> -->
           
           <ion-col class="center">
             <ion-text color="primary">

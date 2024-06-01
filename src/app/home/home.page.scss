@@ -63,6 +63,24 @@
   margin: 5px;
 }
 
+.status-circle {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.token-div {
+  float: left;
+}
+
+.status-div {
+  float: left;
+  top: 10px;
+  position: relative;
+  left: 5px;
+}
+
 
 .prize_container {
     text-align: center;
