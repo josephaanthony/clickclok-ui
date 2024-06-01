@@ -85,10 +85,10 @@ export class HomePage implements OnInit, OnDestroy {
                 self.payPalOpenButton?.close();
               })
             ).subscribe((resp: any): void => {
-              this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-              this.prizeMoney = resp["potEquity"];
-              this.userWalletBalance = resp["userWalletBalance"];
-              this.tokenValue = resp["gameStakeValue"];
+              self.countdown = self.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
+              self.prizeMoney = resp["potEquity"];
+              self.userWalletBalance = resp["userWalletBalance"];
+              self.tokenValue = resp["gameStakeValue"];
             })
           },
           onError(err: any) {

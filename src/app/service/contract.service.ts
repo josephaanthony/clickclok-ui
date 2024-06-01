@@ -87,14 +87,20 @@ export class ContractService {
         .pipe(switchMap(_ => {
             return this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data)        
             .pipe(
-                map(resp => {
+                map((result: any) => {
                         this.alertService.showToast ({
                             message: 'Payment Success',
                             duration: 1500,
                             position: 'top',
                         });
+
+                        result = {
+                            ... result,
+                            currentTimestamp: moment().unix(),
+                            lastExecutedTimestamp: moment(result.lastExecutedTimestamp).unix()
+                        }
     
-                        return resp;
+                        return result;
                     }
                 ),
                 catchError(err => {
