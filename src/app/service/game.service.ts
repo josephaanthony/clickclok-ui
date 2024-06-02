@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnInit } from "@angular/core";
 import { environment } from '../../environments/environment';
-import { Observable, lastValueFrom, map, switchMap, timer } from 'rxjs';
+import { Observable, lastValueFrom, map, of, switchMap, timer } from 'rxjs';
 import { Authentication, GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { ContractService } from "./contract.service";
 import { RxStompService } from "./rx-stomp.service";
@@ -38,6 +38,31 @@ export class GameService {
         }).catch(err => {
             console.log(err);
         });
+
+
+        // if(environment.app.mockLoginEmail) {
+        //     return {
+        //         email: environment.app.mockLoginEmail
+        //     };
+        // } else {    
+        //     return await GoogleAuth.initialize({
+        //         clientId: this.CLIENT_ID,
+        //         scopes: ['profile', 'email'],
+        //         grantOfflineAccess: true,
+        //     }).then(() => {
+        //         return GoogleAuth.refresh()
+        //             .then((data: Authentication) => {
+        //                 if (data.accessToken) {
+        //                     let userData = this.getUserProfileData(data.accessToken);
+        //                     return userData;
+        //                 } else {
+        //                     return null;
+        //                 }
+        //             })
+        //     }).catch(err => {
+        //         console.log(err);
+        //     });
+        // }
     }
 
     async getUserProfileData(token: string) {
@@ -87,40 +112,8 @@ export class GameService {
     }
 
     async getContractUpdates(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE) {
-        // return timer(500).pipe(
-        //     switchMap(()=>
-        //         this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
-        //         this.HTTP_OPTIONS).pipe(
-        //             map( (result: any) => { 
-        //                 console.log(result);
-
-                        
-        //                 // result = {
-        //                 //     ... result,
-        //                 //     currentTimestamp: moment().unix(),
-        //                 //     lastExecutedTimestamp: moment(result.lastExecutedTimestamp).unix()
-        //                 // }
-
-        //                 return result;
-        //             })
-        //         )
-        //     )
-        // );
-
-        // return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikcloks?name=" + name + "&walletType=" + walletType + "&senderAddress=" + senderAddress,
-        //     this.HTTP_OPTIONS));
-
-
-        // this.rxStompService.watch('/topic/gameMessage').subscribe((message: any) => {
-        //     console.log("Received Message: " + message);
-        //     // this.receivedMessages.push(message.body);
-        // });
-
         return await lastValueFrom(this.httpClient.get(environment.app.baseUrl + "/cc-api/clikclokviews?name=" + name + "&senderAddress=" + senderAddress,
         this.HTTP_OPTIONS));
-
-
-
     }
 
     getContractUpdatesOb(name: string, senderAddress: string, walletType: ContractService.WALLET_TYPE): Observable<Object> { 
@@ -128,12 +121,12 @@ export class GameService {
         this.HTTP_OPTIONS);
     }
 
-    async stake(name: string, walletType: ContractService.WALLET_TYPE, senderAddress: string, value: number) {
-        return await lastValueFrom(this.httpClient.post(environment.app.baseUrl + "/cc-api/stakes", {
+    stake(name: string, walletType: ContractService.WALLET_TYPE, senderAddress: string, value: number): Observable<Object> {
+        return this.httpClient.post(environment.app.baseUrl + "/cc-api/stakes", {
             "clikClokName": name,
             "senderAddress": senderAddress,
             "walletType": walletType,
             "value": value
-        }, this.HTTP_OPTIONS));
+        }, this.HTTP_OPTIONS);
     }
 }

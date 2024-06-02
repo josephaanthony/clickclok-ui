@@ -7,8 +7,12 @@
   <ion-content class="ion-padding">
     <ion-list>
       <ion-item>
-        <ion-label>Wallet Balance</ion-label>
+        <ion-label>Wallet Balance: </ion-label>
         <ion-label>{{userWalletBalance}}</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>JLTR Token Balance: </ion-label>
+        <ion-label>{{userWalletTokenBalance}}</ion-label>
       </ion-item>
       <ion-item>
         <ion-button (click)="logOut()">Log Out</ion-button>
@@ -114,5 +118,5 @@
 </ion-footer>
 
 <ion-footer>
-  <ion-button [disabled]="!walletConnected" expand="block" (click)="incrementPrizeMoney()">Play JLTR</ion-button>
+  <ion-button [disabled]="!walletConnected" expand="block" (click)="incrementPrizeMoney()">Play <span style="font-style: italic; font-weight: bold; margin: 0 10px;">{{tokenValue}}</span> JLTR Tokens</ion-button>
 </ion-footer>

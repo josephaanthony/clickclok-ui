@@ -93,13 +93,6 @@ export class ContractService {
                             duration: 1500,
                             position: 'top',
                         });
-
-                        result = {
-                            ... result,
-                            currentTimestamp: moment().unix(),
-                            lastExecutedTimestamp: moment(result.lastExecutedTimestamp).unix()
-                        }
-    
                         return result;
                     }
                 ),
@@ -128,14 +121,7 @@ export class ContractService {
             // const result2 = await this.contract.methods.lastExecutedTimestamp().call();    
         } else {
             result = await this.gameService.getContractUpdates(this.GAME_NAME, this.senderAddress.email, this.walletType);
-
-            result = {
-                ... result,
-                currentTimestamp: moment().unix(),
-                lastExecutedTimestamp: moment(result.lastExecutedTimestamp).unix()
-            }
         }
-
 
         console.log('Result:', result);
         return result;
@@ -154,11 +140,6 @@ export class ContractService {
                         })
                     } else {
                         console.log('Error getting latest game status.' + err);
-                        // this.alertService.showAlert({
-                        //     header: 'Status Error',
-                        //     message: 'Error getting latest game status. Please contact support.',
-                        //     buttons: ['OK'],
-                        // })    
                     }
                     return throwError(() => err);
                 })
@@ -179,31 +160,52 @@ export class ContractService {
         return result;
     }
 
-    async sendTransaction(tokenValue: number) {
+    sendTransaction(tokenValue: number) {
         if(this.web3) {
             const amountToSend = this.web3.utils.toWei(0.000001, 'ether');
             // Example: Send a transaction to a contract function
-            await this.contract.methods.stake(amountToSend).send({ from: this.senderAddress });    
+            return this.contract.methods.stake(amountToSend).send({ from: this.senderAddress });    
         } else {
-            this.gameService.stake(this.GAME_NAME, this.walletType, this.senderAddress.email, tokenValue).catch(err => {
-                if(err?.error?.message == "Insufficient Balance") {
-                    this.alertService.showAlert({
-                        header: 'Insufficient Balance',
-                        message: 'Please add token to your wallet.',
-                        buttons: ['OK'],
-                      });    
-                } else {
-                    this.alertService.showAlert({
-                        header: 'Transaction Error',
-                        message: 'Error processing transaction. Please contact support.',
-                        buttons: ['OK'],
-                      });    
-                }
-            }).then(resp => {
+            return this.gameService.stake(this.GAME_NAME, this.walletType, this.senderAddress.email, tokenValue)
+            .pipe(
+                catchError(err => {
+                    if(err?.error?.message == "Insufficient Balance") {
+                        this.alertService.showAlert({
+                            header: 'Insufficient Balance',
+                            message: 'Please add token to your wallet.',
+                            buttons: ['OK'],
+                          });    
+                    } else {
+                        this.alertService.showAlert({
+                            header: 'Transaction Error',
+                            message: 'Error processing transaction. Please contact support.',
+                            buttons: ['OK'],
+                          });    
+                    }
 
-            });
+                    return throwError(() => err);
+                }),
+                switchMap(res => {
+                    return of(res);
+                })
+            );
+            
+            // .catch(err => {
+            //     if(err?.error?.message == "Insufficient Balance") {
+            //         this.alertService.showAlert({
+            //             header: 'Insufficient Balance',
+            //             message: 'Please add token to your wallet.',
+            //             buttons: ['OK'],
+            //           });    
+            //     } else {
+            //         this.alertService.showAlert({
+            //             header: 'Transaction Error',
+            //             message: 'Error processing transaction. Please contact support.',
+            //             buttons: ['OK'],
+            //           });    
+            //     }
+            // });
         }
-        console.log('Transaction sent!');
     }
     
 }

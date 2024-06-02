@@ -13,6 +13,7 @@ import { Observable, Subscription, catchError, concatMap, delay, finalize, inter
 import { addIcons } from 'ionicons';
 import { GameCircleComponent } from "../game-circle/game-circle.component";
 import { AlertService } from '../service/alert.service';
+import moment from 'moment';
 
 declare function initPaypal(): any;
 
@@ -26,7 +27,7 @@ declare function initPaypal(): any;
         CommonModule, BouncingBallComponent, BouncingBallSimpleComponent, GameAreaComponent, GameCircleComponent]
 })
 export class HomePage implements OnInit, OnDestroy {
-  COUNT_RESET_VALUE = 300;
+  COUNT_RESET_VALUE = 0;
   prizeMoney = 0;
   countdown: number = this.COUNT_RESET_VALUE;
   senderAddress: any;
@@ -34,6 +35,7 @@ export class HomePage implements OnInit, OnDestroy {
   walletConnected = false;
   contractUpdateInterval: any;
   userWalletBalance = 0;
+  userWalletTokenBalance = 0;
   tokenDataInitialized: boolean = false;
   tokenValue = 1;
   statusSubscription: Subscription | undefined;
@@ -53,17 +55,45 @@ export class HomePage implements OnInit, OnDestroy {
     this.contractService.initializeAuth().then(resp => {
       this.walletConnected = resp ? true: false;
       this.senderAddress = resp;
-    });
 
-    // this.getContractUpdates();
-    // initPaypal();
+      if(this.senderAddress) {
+        this.getOneTimeUpdate();
+      }
+    });
   }
 
   openMetaMask(walletType: ContractService.WALLET_TYPE) {
     this.contractService.openWallet(walletType).then(resp =>{
       this.walletConnected = resp ? true: false;
       this.senderAddress = resp;
+
+      if(this.senderAddress) {
+        this.getOneTimeUpdate();
+      }
     })
+  }
+
+  getOneTimeUpdate() {
+    this.contractService.getContractUpdateOb().pipe(
+      catchError((err: any, caught: Observable<Object>) => {
+        this.tokenDataInitialized = false; 
+        console.log("Status check failed " + err?.message);
+        return caught;
+      })
+    ).subscribe((resp: any): void => {
+      HomePage.updateSelfProperties(this, resp);
+    });
+  }
+
+  static updateSelfProperties(self: HomePage, resp: any) {
+    let currentTimestamp = moment().unix();
+    let lastExecutedTimestamp = moment(resp.lastExecutedTimestamp).unix();
+
+    self.countdown = self.calculateTimestampDifference(currentTimestamp,  lastExecutedTimestamp);
+    self.prizeMoney = resp["potEquity"];
+    self.userWalletBalance = resp["userWalletBalance"];
+    self.userWalletTokenBalance = resp["userWalletTokenBalance"];
+    self.tokenValue = resp["gameStakeValue"];
   }
 
   async loadPaypalScript() {
@@ -85,10 +115,7 @@ export class HomePage implements OnInit, OnDestroy {
                 self.payPalOpenButton?.close();
               })
             ).subscribe((resp: any): void => {
-              self.countdown = self.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-              self.prizeMoney = resp["potEquity"];
-              self.userWalletBalance = resp["userWalletBalance"];
-              self.tokenValue = resp["gameStakeValue"];
+              HomePage.updateSelfProperties(self, resp);
             })
           },
           onError(err: any) {
@@ -140,15 +167,9 @@ export class HomePage implements OnInit, OnDestroy {
         console.log("Status check failed " + err?.message);
         return caught;
       })
-      // takeUntilDestroyed(this.destroyRef)
     ).subscribe((resp: any): void => {
-      this.countdown = this.calculateTimestampDifference(resp["currentTimestamp"],  resp["lastExecutedTimestamp"]);
-      this.prizeMoney = resp["potEquity"];
-      this.userWalletBalance = resp["userWalletBalance"];
-      this.tokenValue = resp["gameStakeValue"];
-      
+      HomePage.updateSelfProperties(this, resp);
       this.tokenDataInitialized = true;
-      // return this.getTokenData();
     });
   }
 
@@ -186,11 +207,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   incrementPrizeMoney() {
-    // this.prizeMoney += 50;
-    // this.lastPrizeMoneyUpdate = new Date().getTime();
-    // this.resetCountdown();
-
-    this.contractService.sendTransaction(this.tokenValue);
+    this.contractService.sendTransaction(this.tokenValue).subscribe((resp: any): void => {
+      HomePage.updateSelfProperties(this, resp);
+    });
   }
 
   formatCountdown() {

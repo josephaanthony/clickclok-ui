@@ -18,7 +18,7 @@ import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import sol
   standalone: true
 })
 export class GameCircleComponent implements OnInit {
-  @Input() duration: any = 60; // default duration is 60 seconds
+  @Input() duration: any = 0; // default duration is 60 seconds
   circumference = 2 * Math.PI * 54;
   offset = this.circumference;
   displayTime: string = '';
@@ -31,11 +31,23 @@ export class GameCircleComponent implements OnInit {
     this.startTimer();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes["duration"]) {
+      clearInterval(this.intervalId);
+      this.duration = changes["duration"].currentValue;
+      this.startTimer();  
+    }
+  }
+
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
   }
 
   startTimer(): void {
+    if(this.duration <= 0) {
+      return;
+    }
+
     const startTime = Date.now();
     const endTime = startTime + this.duration * 1000;
 

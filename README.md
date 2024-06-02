@@ -32,3 +32,6 @@ java -jar "E:\Users\josep\Downloads\pepk.jar" --keystore="E:\Users\josep\Documen
 
 keytool -list -v -keystore E:\Users\josep\Documents\Crypto\clikclok.jks -alias androidclikclokkey -storepass jTony123 -keypass jTony123
 9E:F7:F2:4A:86:57:6E:03:35:84:AA:A0:43:1E:AC:83:63:CA:01:E3
+
+
+ionic capacitor run android --livereload --external --configuration=development
