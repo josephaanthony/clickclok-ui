@@ -5,6 +5,7 @@ import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonG
 import * as Highcharts from 'highcharts';
 import * as HighchartsMore from 'highcharts/highcharts-more'; // Import highcharts-more for gauge chart
 import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import solid-gauge for solid gauge chart
+import moment from 'moment';
 
 // Initialize the modules
 (HighchartsMore as any)(Highcharts);
@@ -19,7 +20,7 @@ import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import sol
 })
 export class GameCircleComponent implements OnInit {
   @Input() duration: any = 0; // default duration is 60 seconds
-  @Input() secondsRemaining: any = 0;
+  @Input() secondsSpent: any = 0;
 
   circumference = 2 * Math.PI * 54;
   offset = this.circumference;
@@ -38,11 +39,11 @@ export class GameCircleComponent implements OnInit {
       this.duration = changes["duration"].currentValue;
     }
 
-    if(changes["secondsRemaining"]) {
-      this.secondsRemaining = changes["secondsRemaining"].currentValue;
+    if(changes["secondsSpent"]) {
+      this.secondsSpent = changes["secondsSpent"].currentValue;
     }
 
-    if(changes["duration"] || changes["secondsRemaining"]) {
+    if(changes["duration"] || changes["secondsSpent"]) {
       clearInterval(this.intervalId);
       this.startTimer();  
     }
@@ -53,51 +54,53 @@ export class GameCircleComponent implements OnInit {
   }
 
   startTimer(): void {
-    if(this.secondsRemaining <= 0) {
+    if(this.secondsSpent <= 0) {
       return;
     }
 
-    const startTime = Date.now();
+    const startTime = Date.now() - this.secondsSpent * 1000;
     const endTime = startTime + this.duration * 1000;
 
     let firstRun = true;
 
     this.intervalId = setInterval(() => {
       const now = Date.now();
-      const timeLeft = endTime - now;
+      const timeLeft = endTime - now; // in milliseconds
 
-      let secondsLeft = 0;
+      // let secondsLeft = 0;
 
-      if(firstRun) {
-        secondsLeft = this.secondsRemaining;
-        firstRun = false;
-      } else {
-        secondsLeft = Math.max(0, Math.floor(timeLeft / 1000));
-      }
+      // if(firstRun) {
+      //   secondsLeft = this.secondsSpent;
+      //   firstRun = false;
+      // } else {
+      //   secondsLeft = Math.max(0, Math.floor(timeLeft / 1000));
+      // }
 
+      const secondsLeft = Math.floor(timeLeft / 1000);
       this.displayTime = this.formatTime(secondsLeft);
-      this.offset = (this.circumference * secondsLeft) / this.duration - this.circumference;
 
-      const progress = 1 - ((secondsLeft-76) / this.duration);
-      const angle = progress * 2 * Math.PI - Math.PI / 2; // Start from the bottom (270 degrees)
-      this.startX = 60 + 54 * Math.cos(angle);
-      this.startY = 60 + 54 * Math.sin(angle);
-
-      if (timeLeft <= 0 || timeLeft > this.duration) {
+      if(secondsLeft >= 0) {
+        this.offset = (this.circumference * secondsLeft) / this.duration - this.circumference;
+  
+        const progress = 1 - ((secondsLeft-76) / this.duration);
+        const angle = progress * 2 * Math.PI - Math.PI / 2; // Start from the bottom (270 degrees)
+        this.startX = 60 + 54 * Math.cos(angle);
+        this.startY = 60 + 54 * Math.sin(angle);  
+      } else {
         clearInterval(this.intervalId);
       }
+      
     }, 1000);
   }
 
-  formatTime(seconds: number): string {
-    if(seconds == this.duration) {
+  formatTime(secondsLeft: number): string {
+    if(secondsLeft == this.duration) {
       return 'Game Not Started Yet';
-    }
-    if(seconds == 0 || seconds > this.duration) {
+    } else if(secondsLeft <= 0) {
       return 'Game Over';
     } else {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
+      const minutes = Math.floor(secondsLeft / 60);
+      const remainingSeconds = secondsLeft % 60;
       return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;  
     }
   }

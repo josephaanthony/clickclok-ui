@@ -3,6 +3,7 @@ export const environment = {
 
   app: {
     baseUrl: "https://clikclok.azurewebsites.net",
-    socketUrl: "clikclok.azurewebsites.net"
+    socketUrl: "clikclok.azurewebsites.net",
+    mockLoginEmail: "josephaanthony@gmail.com"
   }
 };

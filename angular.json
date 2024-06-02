@@ -70,6 +70,20 @@
                 }
               ]
             },
+            "development-mock": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.mock.ts"
+                }
+              ]
+            },
             "local": {
               "buildOptimizer": false,
               "optimization": false,
@@ -92,6 +106,9 @@
             },
             "development": {
               "buildTarget": "app:build:development"
+            },
+            "development-mock": {
+              "buildTarget": "app:build:development-mock"
             },
             "local": {
               "buildTarget": "app:build:local"
