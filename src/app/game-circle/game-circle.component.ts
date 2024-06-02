@@ -19,9 +19,11 @@ import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import sol
 })
 export class GameCircleComponent implements OnInit {
   @Input() duration: any = 0; // default duration is 60 seconds
+  @Input() secondsRemaining: any = 0;
+
   circumference = 2 * Math.PI * 54;
   offset = this.circumference;
-  displayTime: string = '';
+  displayTime: string = 'Game Not Started Yet';
   startX: number = 80;
   startY: number = 80; // Initial position at the top of the circle
 
@@ -33,8 +35,15 @@ export class GameCircleComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes["duration"]) {
-      clearInterval(this.intervalId);
       this.duration = changes["duration"].currentValue;
+    }
+
+    if(changes["secondsRemaining"]) {
+      this.secondsRemaining = changes["secondsRemaining"].currentValue;
+    }
+
+    if(changes["duration"] || changes["secondsRemaining"]) {
+      clearInterval(this.intervalId);
       this.startTimer();  
     }
   }
@@ -44,17 +53,27 @@ export class GameCircleComponent implements OnInit {
   }
 
   startTimer(): void {
-    if(this.duration <= 0) {
+    if(this.secondsRemaining <= 0) {
       return;
     }
 
     const startTime = Date.now();
     const endTime = startTime + this.duration * 1000;
 
+    let firstRun = true;
+
     this.intervalId = setInterval(() => {
       const now = Date.now();
       const timeLeft = endTime - now;
-      const secondsLeft = Math.max(0, Math.floor(timeLeft / 1000));
+
+      let secondsLeft = 0;
+
+      if(firstRun) {
+        secondsLeft = this.secondsRemaining;
+        firstRun = false;
+      } else {
+        secondsLeft = Math.max(0, Math.floor(timeLeft / 1000));
+      }
 
       this.displayTime = this.formatTime(secondsLeft);
       this.offset = (this.circumference * secondsLeft) / this.duration - this.circumference;
@@ -64,16 +83,23 @@ export class GameCircleComponent implements OnInit {
       this.startX = 60 + 54 * Math.cos(angle);
       this.startY = 60 + 54 * Math.sin(angle);
 
-      if (timeLeft <= 0) {
+      if (timeLeft <= 0 || timeLeft > this.duration) {
         clearInterval(this.intervalId);
       }
     }, 1000);
   }
 
   formatTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;
+    if(seconds == this.duration) {
+      return 'Game Not Started Yet';
+    }
+    if(seconds == 0 || seconds > this.duration) {
+      return 'Game Over';
+    } else {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;  
+    }
   }
 
   pad(num: number): string {

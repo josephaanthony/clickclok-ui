@@ -30,6 +30,7 @@ export class HomePage implements OnInit, OnDestroy {
   COUNT_RESET_VALUE = 0;
   prizeMoney = 0;
   countdown: number = this.COUNT_RESET_VALUE;
+  gameDurationInSeconds: number = this.COUNT_RESET_VALUE;
   senderAddress: any;
   // lastPrizeMoneyUpdate = new Date().getTime();
   walletConnected = false;
@@ -90,6 +91,7 @@ export class HomePage implements OnInit, OnDestroy {
     let lastExecutedTimestamp = moment(resp.lastExecutedTimestamp).unix();
 
     self.countdown = self.calculateTimestampDifference(currentTimestamp,  lastExecutedTimestamp);
+    self.gameDurationInSeconds = resp["gameDurationInSeconds"];
     self.prizeMoney = resp["potEquity"];
     self.userWalletBalance = resp["userWalletBalance"];
     self.userWalletTokenBalance = resp["userWalletTokenBalance"];
