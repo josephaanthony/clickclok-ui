@@ -94,7 +94,7 @@
   </ion-content>
 
   <ion-fab slot="fixed" vertical="top" horizontal="end" #payPalOpenButton>
-    <ion-fab-button class="buy_token_button">
+    <ion-fab-button class="buy_token_button" [disabled]="!senderAddress">
       <ion-label class="buy_token_label">
           Buy More Tokens
       </ion-label>
@@ -103,7 +103,6 @@
     <ion-fab-list side="bottom" class="paypal_options">
       <ion-content id="body_background_child">
         <div id="paypal-button-container"></div>
-          <p id="result-message"></p>
       </ion-content>
     </ion-fab-list>
   </ion-fab>
@@ -118,5 +117,5 @@
 </ion-footer>
 
 <ion-footer>
-  <ion-button [disabled]="!walletConnected" expand="block" (click)="incrementPrizeMoney()">Play <span style="font-style: italic; font-weight: bold; margin: 0 10px;">{{tokenValue}}</span> JLTR Tokens</ion-button>
+  <ion-button [disabled]="!senderAddress" expand="block" (click)="incrementPrizeMoney()">Play <span style="font-style: italic; font-weight: bold; margin: 0 10px;">{{tokenValue}}</span> JLTR Tokens</ion-button>
 </ion-footer>

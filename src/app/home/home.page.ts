@@ -9,7 +9,7 @@ import { BouncingBallSimpleComponent } from '../bouncing-ball-simple/bouncing-ba
 import { GameAreaComponent } from '../game/game-area.component';
 import { ContractService } from '../service/contract.service';
 import { loadScript } from "@paypal/paypal-js";
-import { Observable, Subscription, catchError, concatMap, delay, finalize, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
+import { Observable, Subscription, catchError, concatMap, delay, finalize, firstValueFrom, interval, repeat, repeatWhen, switchMap, take, timer } from 'rxjs';
 import { addIcons } from 'ionicons';
 import { GameCircleComponent } from "../game-circle/game-circle.component";
 import { AlertService } from '../service/alert.service';
@@ -103,30 +103,56 @@ export class HomePage implements OnInit, OnDestroy {
 
     try {
         paypal = await loadScript({ clientId: "AUsmsmTQpWACUHNPRvhQuQkgfKVB-qSkOIRJoPB5oarQHnzqXcEGY8nfohUOjFedyZAnq30wsPafNiw9",
-          enableFunding: "venmo", currency: "USD", disableFunding: "paylater"
+          enableFunding: "venmo", currency: "USD", components: "buttons"
         });
         
         // paypal.Buttons().render('#paypal-button-container');
 
         var self = this;
 
-        paypal.Buttons({
-          onApprove(data: any) {
-            self.contractService.confirmPayment(data).pipe(
-              finalize(() => {
-                self.payPalOpenButton?.close();
-              })
-            ).subscribe((resp: any): void => {
-              HomePage.updateSelfProperties(self, resp);
-            })
+        paypal.Buttons({        
+          style: {
+            shape: "rect",
+            layout: "vertical",
+            color: "gold",
+            label: "paypal",
+          },
+          async createOrder(data: any, actions: any) {
+            data.amount = {
+              value: "1",
+              currencyCode: "USD"
+            }
+            let resp: any = await firstValueFrom(self.contractService.createPaymentOrder(data)).finally(() => 
+              self.payPalOpenButton?.close()
+            );
+            return resp.orderID;
+          },
+          async onApprove(data: any) {
+            let resp = await firstValueFrom(self.contractService.confirmPayment(data)).finally(() => self.payPalOpenButton?.close())
+            HomePage.updateSelfProperties(self, resp);
+            // .subscribe((resp: any): void => {
+            //   HomePage.updateSelfProperties(self, resp);
+            // })
+
+            // self.contractService.confirmPayment(data).pipe(
+            //   finalize(() => {
+            //     self.payPalOpenButton?.close();
+            //   })
+            // ).subscribe((resp: any): void => {
+            //   HomePage.updateSelfProperties(self, resp);
+            // })
           },
           onError(err: any) {
+            self.payPalOpenButton?.close();
             // For example, redirect to a specific error page
             self.alertService.showAlert({
               header: 'Payment Error',
               message: 'Error processing payment. Please contact support.',
               buttons: ['OK'],
             })
+          },
+          onShippingChange(data: any, actions: any) {
+            return true;
           }
           
         }).render('#paypal-button-container');
@@ -160,10 +186,9 @@ export class HomePage implements OnInit, OnDestroy {
 
     this.tokenDataInitialized = true;
 
-    this.statusSubscription = this.contractService.getContractUpdateOb().pipe(
-      delay(3000), 
-      take(1),
-      repeat(),
+    this.statusSubscription = this.contractService.getContractUpdateOb()
+    .pipe(
+      repeat({ delay: 8000 }),
       catchError((err: any, caught: Observable<Object>) => {
         this.tokenDataInitialized = false; 
         console.log("Status check failed " + err?.message);
@@ -222,5 +247,9 @@ export class HomePage implements OnInit, OnDestroy {
 
   resetCountdown() {
     this.countdown = this.COUNT_RESET_VALUE;
+  }
+
+  ngDestroy() {
+    this.endStatusSubscription();
   }
 }

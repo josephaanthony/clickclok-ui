@@ -91,6 +91,13 @@ export class GameService {
         });
     }
 
+    createPaymentOrder(name: string, senderAddress: string, paymentData: any): Observable<Object> {
+        paymentData.clikClokName = name;
+        paymentData.senderAddress = senderAddress;
+
+        return this.httpClient.post(environment.app.baseUrl + "/cc-api/createPaymentOrder", paymentData, this.HTTP_OPTIONS);
+    }
+
     confirmPayment(name: string, senderAddress: string, paymentData: any): Observable<Object> {
         paymentData.clikClokName = name;
         paymentData.senderAddress = senderAddress;

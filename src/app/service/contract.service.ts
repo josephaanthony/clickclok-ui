@@ -31,6 +31,11 @@ export class ContractService {
 
     public initializeAuth = async(): Promise<string> => {
         this.senderAddress = (await this.gameService.initializeAuth());
+        
+        if(this.senderAddress) {
+            await this.gameService.registerUser(this.GAME_NAME, this.senderAddress.email, this.walletType);
+        }
+
         return this.senderAddress;
     }
 
@@ -64,17 +69,14 @@ export class ContractService {
         }
         else {
             console.log("Calling gameService login");
-            this.senderAddress = (await this.gameService.login())
-
-            // let claims = this.gameService.login();
-            // if(claims) {
-            //     this.senderAddress = claims["email"];
-            // }
+            this.senderAddress = await this.gameService.login();
         }
 
         this.walletType = walletType;
+        if(this.senderAddress) {
+            await this.gameService.registerUser(this.GAME_NAME, this.senderAddress.email, this.walletType);
+        }
 
-        this.gameService.registerUser(this.GAME_NAME, this.senderAddress.email, this.walletType);
         return this.senderAddress;
     }
 
@@ -82,31 +84,42 @@ export class ContractService {
         return this.gameService.logOut().then(() => this.senderAddress = null);
     }
 
-    confirmPayment(data: any): Observable<Object> {  
-        return of(null)
-        .pipe(switchMap(_ => {
-            return this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data)        
-            .pipe(
-                map((result: any) => {
-                        this.alertService.showToast ({
-                            message: 'Payment Success',
-                            duration: 1500,
-                            position: 'top',
-                        });
-                        return result;
-                    }
-                ),
-                catchError(err => {
-                    this.alertService.showAlert({
-                        header: 'Payment Error',
-                        message: 'Error processing payment. Please contact support.',
-                        buttons: ['OK'],
-                      });
-                    console.log("Error Payment " + err);
-                    return throwError(() => err);
-                })
-            )
-        }))        
+    createPaymentOrder(data: any): Observable<Object> {
+        return this.gameService.createPaymentOrder(this.GAME_NAME, this.senderAddress.email, data)
+        .pipe(
+            catchError(err => {
+                this.alertService.showAlert({
+                    header: 'Payment Error',
+                    message: 'Error processing payment. Please contact support.',
+                    buttons: ['OK'],
+                  });
+                console.log("Error Payment " + err);
+                return throwError(() => err);
+            })
+        );
+    }
+
+    confirmPayment(data: any): Observable<Object> {
+        return this.gameService.confirmPayment(this.GAME_NAME, this.senderAddress.email, data)
+        .pipe(
+            catchError(err => {
+                this.alertService.showAlert({
+                    header: 'Payment Error',
+                    message: 'Error processing payment. Please contact support.',
+                    buttons: ['OK'],
+                  });
+                console.log("Error Payment " + err);
+                return throwError(() => err);
+            }),
+            map((result: any) => {
+                this.alertService.showToast ({
+                    message: 'Payment Success',
+                    duration: 1500,
+                    position: 'top',
+                });
+                return result;
+            })
+        )       
     }
 
     async getContractUpdates() {
@@ -128,23 +141,23 @@ export class ContractService {
     }
 
     getContractUpdateOb(): Observable<Object> {
-        return of(null) 
-        .pipe(switchMap(_ => {
-            return this.gameService.getContractUpdatesOb(this.GAME_NAME, this.senderAddress.email, this.walletType).pipe(
-                catchError(err => {
-                    if(err?.error?.message == "Game not started") {
-                        this.alertService.showAlert({
-                            header: 'Game Not Started',
-                            message: 'Game not started yet. Please stake your bet.',
-                            buttons: ['OK'],
-                        })
-                    } else {
-                        console.log('Error getting latest game status.' + err);
-                    }
-                    return throwError(() => err);
-                })
-            );
-        }));
+        return this.gameService.getContractUpdatesOb(this.GAME_NAME, this.senderAddress?.email, this.walletType)
+        .pipe(
+            catchError(err => {
+                if(err?.error?.message == "Game not started") {
+                    // this.alertService.showAlert({
+                    //     header: 'Game Not Started',
+                    //     message: 'Game not started yet. Please stake your bet.',
+                    //     buttons: ['OK'],
+                    // })
+                    console.log('Game not started yet. Please stake your bet.' + err);
+                } else {
+                    console.log('Error getting latest game status.' + err);
+                }
+                return of();
+                // return throwError(() => err);
+            })
+        );
     }
 
     async getAirDrop() {
@@ -183,28 +196,18 @@ export class ContractService {
                           });    
                     }
 
-                    return throwError(() => err);
+                    return of();
                 }),
-                switchMap(res => {
-                    return of(res);
+                map(res => {
+                    this.alertService.showToast ({
+                        message: 'Transactions Successful',
+                        duration: 1500,
+                        position: 'top',
+                    });
+
+                    return res;
                 })
             );
-            
-            // .catch(err => {
-            //     if(err?.error?.message == "Insufficient Balance") {
-            //         this.alertService.showAlert({
-            //             header: 'Insufficient Balance',
-            //             message: 'Please add token to your wallet.',
-            //             buttons: ['OK'],
-            //           });    
-            //     } else {
-            //         this.alertService.showAlert({
-            //             header: 'Transaction Error',
-            //             message: 'Error processing transaction. Please contact support.',
-            //             buttons: ['OK'],
-            //           });    
-            //     }
-            // });
         }
     }
     
