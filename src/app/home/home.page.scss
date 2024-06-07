@@ -37,6 +37,10 @@
 //   filter: blur(2px); 
 // }
 
+.list-md-lines-none .item-lines-default {
+  --min-height: 40px;
+}
+
 .leader-list {
   position: fixed;
   top: -73px;
