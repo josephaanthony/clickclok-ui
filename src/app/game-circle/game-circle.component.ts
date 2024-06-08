@@ -54,7 +54,7 @@ export class GameCircleComponent implements OnInit {
   }
 
   startTimer(): void {
-    if(this.secondsSpent <= 0 || isNaN(this.secondsSpent)) {
+    if(this.secondsSpent < 0 || isNaN(this.secondsSpent)) {
       return;
     }
 

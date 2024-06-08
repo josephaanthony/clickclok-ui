@@ -87,6 +87,8 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   static updateSelfProperties(self: HomePage, resp: any) {
+    console.log("Old Countdown value: " + self.countdown);
+
     let currentTimestamp = moment().unix();
     let lastExecutedTimestamp = moment(resp.lastExecutedTimestamp).unix();
 
@@ -96,6 +98,8 @@ export class HomePage implements OnInit, OnDestroy {
     self.userWalletBalance = resp["userWalletBalance"];
     self.userWalletTokenBalance = resp["userWalletTokenBalance"];
     self.tokenValue = resp["gameStakeValue"];
+
+    console.log("New Countdown value: " + self.countdown);
   }
 
   async loadPaypalScript() {
@@ -234,8 +238,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   incrementPrizeMoney() {
-    this.contractService.sendTransaction(this.tokenValue).subscribe((resp: any): void => {
+    this.contractService.sendTransaction(this.tokenValue).subscribe((resp: any): void => {      
       HomePage.updateSelfProperties(this, resp);
+      console.log("Updated Self Properties");
     });
   }
 
