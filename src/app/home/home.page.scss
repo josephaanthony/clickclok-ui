@@ -43,13 +43,12 @@
 
 .leader-list {
   position: fixed;
-  top: -109px;
-  left: 0px;
-  width: 100%;
+  top: -30%;
+  // left: 0px;
+  // width: 100%;
   height: 100%;
   /* background: transparent; */
   /* background: linear-gradient(to bottom, rgb(255, 255, 255) 30%, rgba(0, 0, 0, 0) 100%); */
-  opacity: linear(0, 100%);
 }
 
 ::ng-deep .leader-list::before {
@@ -61,6 +60,10 @@
   height: 100%;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
   pointer-events: none;
+}
+
+.leader-list ion-item {
+  max-width: 400px;
 }
 
 .paypal_options {

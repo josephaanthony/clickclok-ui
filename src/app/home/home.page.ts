@@ -32,6 +32,7 @@ export class HomePage implements OnInit, OnDestroy {
   countdown: number = this.COUNT_RESET_VALUE;
   gameDurationInSeconds: number = this.COUNT_RESET_VALUE;
   senderAddress: any;
+  leaderBoardList = [];
   // lastPrizeMoneyUpdate = new Date().getTime();
   walletConnected = false;
   contractUpdateInterval: any;
@@ -101,7 +102,39 @@ export class HomePage implements OnInit, OnDestroy {
     self.userWalletTokenBalance = resp["userWalletTokenBalance"];
     self.tokenValue = resp["gameStakeValue"];
 
+    self.leaderBoardList = resp["leaderBoard"]?.map((el: string) => {
+      let arr = el.split('##$##');
+      return [ arr[0], arr[1]];
+      // (new Date().getTime() - new Date(arr[1]).getTime()) / 1000];
+    });
+
     console.log("New Countdown value: " + self.countdown);
+  }
+
+  reduceBy30Percent(initialValue: number, iterations: number): string {
+    return initialValue * Math.pow(0.7, iterations) + "%";
+  }
+
+  formatTime(lastExecutedTimestamp: any): string {
+    let secondsSpent = (new Date().getTime() - new Date(lastExecutedTimestamp).getTime()) / 1000;
+
+    // const hours = Math.floor(secondsLeft/ 3600);
+    // const minutes = Math.floor(secondsLeft / 60);
+    // const remainingSeconds = Math.floor(secondsLeft % 60);
+
+    // const days = Math.floor(secondsSpent / (3600 * 24));
+    // secondsSpent %= 3600 * 24;
+    const hours = Math.floor(secondsSpent / 3600);
+    secondsSpent %= 3600;
+    const minutes = Math.floor(secondsSpent / 60);
+    const remainingSeconds = Math.floor(secondsSpent % 60);
+
+    // return `${this.pad(days)}:${this.pad(hours)}:${this.pad(minutes)}:${this.pad(remainingSeconds)}`;  
+    return `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(remainingSeconds)}`;  
+}
+
+  pad(num: number): string {
+    return num < 10 ? '0' + num : num.toString();
   }
 
   async loadPaypalScript() {
