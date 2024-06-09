@@ -13,7 +13,7 @@ import { Observable, Subscription, catchError, concatMap, delay, finalize, first
 import { addIcons } from 'ionicons';
 import { GameCircleComponent } from "../game-circle/game-circle.component";
 import { AlertService } from '../service/alert.service';
-import moment from 'moment';
+// import moment from 'moment';
 
 declare function initPaypal(): any;
 
@@ -89,10 +89,12 @@ export class HomePage implements OnInit, OnDestroy {
   static updateSelfProperties(self: HomePage, resp: any) {
     console.log("Old Countdown value: " + self.countdown);
 
-    let currentTimestamp = moment().unix();
-    let lastExecutedTimestamp = moment(resp.lastExecutedTimestamp).unix();
+    // let currentTimestamp = moment().unix();
+    // let lastExecutedTimestamp = moment(resp.lastExecutedTimestamp).unix();
+    // self.countdown = self.calculateTimestampDifference(currentTimestamp,  lastExecutedTimestamp);
 
-    self.countdown = self.calculateTimestampDifference(currentTimestamp,  lastExecutedTimestamp);
+    self.countdown = (new Date().getTime() - new Date(resp.lastExecutedTimestamp).getTime()) / 1000; // in seconds
+
     self.gameDurationInSeconds = resp["gameDurationInSeconds"];
     self.prizeMoney = resp["potEquity"];
     self.userWalletBalance = resp["userWalletBalance"];

@@ -5,7 +5,7 @@ import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonFooter, IonG
 import * as Highcharts from 'highcharts';
 import * as HighchartsMore from 'highcharts/highcharts-more'; // Import highcharts-more for gauge chart
 import * as HighchartsGauge from 'highcharts/modules/solid-gauge'; // Import solid-gauge for solid gauge chart
-import moment from 'moment';
+// import { Moment } from 'moment/moment';
 
 // Initialize the modules
 (HighchartsMore as any)(Highcharts);
@@ -36,36 +36,45 @@ export class GameCircleComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes["duration"]) {
-      this.duration = changes["duration"].currentValue;
+      this.duration = Number(changes["duration"].currentValue);
     }
 
     if(changes["secondsSpent"]) {
-      this.secondsSpent = changes["secondsSpent"].currentValue;
+      this.secondsSpent = Number(changes["secondsSpent"].currentValue);
     }
 
     if(changes["duration"] || changes["secondsSpent"]) {
-      clearInterval(this.intervalId);
       this.startTimer();  
     }
   }
 
+  clearIntervalInternal() {
+    if(this.intervalId != null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;  
+    }
+  }
+
   ngOnDestroy(): void {
-    clearInterval(this.intervalId);
+    this.clearIntervalInternal();
   }
 
   startTimer(): void {
-    if(this.secondsSpent < 0 || isNaN(this.secondsSpent)) {
+    if(this.secondsSpent < 0 || isNaN(this.secondsSpent) || this.duration <= 0) {
       return;
+    }
+
+    // reset interval if its already started.
+    if(this.intervalId != null) {
+      this.clearIntervalInternal();
     }
 
     const startTime = Date.now() - this.secondsSpent * 1000;
     const endTime = startTime + this.duration * 1000;
 
-    let firstRun = true;
-
     this.intervalId = setInterval(() => {
       const now = Date.now();
-      const timeLeft = endTime - now; // in milliseconds
+      const secondsLeft = (endTime - now) / 1000; // in milliseconds
 
       // let secondsLeft = 0;
 
@@ -76,31 +85,42 @@ export class GameCircleComponent implements OnInit {
       //   secondsLeft = Math.max(0, Math.floor(timeLeft / 1000));
       // }
 
-      const secondsLeft = Math.floor(timeLeft / 1000);
+      // const secondsLeft = Math.floor(timeLeft / 1000);
+      // this.displayTime = this.formatTime(secondsLeft);
+
+      // if(secondsLeft >= 0) {
+      //   this.offset = (this.circumference * secondsLeft) / this.duration - this.circumference;
+  
+      //   const progress = 1 - ((secondsLeft-76) / this.duration);
+      //   const angle = progress * 2 * Math.PI - Math.PI / 2; // Start from the bottom (270 degrees)
+      //   this.startX = 60 + 54 * Math.cos(angle);
+      //   this.startY = 60 + 54 * Math.sin(angle);  
+      // } else {
+      //   clearInterval(this.intervalId);
+      // }
+
+      // const secondsLeft = this.duration - this.secondsSpent;
       this.displayTime = this.formatTime(secondsLeft);
 
       if(secondsLeft >= 0) {
         this.offset = (this.circumference * secondsLeft) / this.duration - this.circumference;
-  
         const progress = 1 - ((secondsLeft-76) / this.duration);
         const angle = progress * 2 * Math.PI - Math.PI / 2; // Start from the bottom (270 degrees)
         this.startX = 60 + 54 * Math.cos(angle);
-        this.startY = 60 + 54 * Math.sin(angle);  
+        this.startY = 60 + 54 * Math.sin(angle);    
       } else {
-        clearInterval(this.intervalId);
+        this.clearIntervalInternal();
       }
       
     }, 1000);
   }
 
   formatTime(secondsLeft: number): string {
-    if(secondsLeft == this.duration) {
-      return 'Game Not Started Yet';
-    } else if(secondsLeft <= 0) {
+    if(secondsLeft < 0) {
       return 'Game Over';
     } else {
       const minutes = Math.floor(secondsLeft / 60);
-      const remainingSeconds = secondsLeft % 60;
+      const remainingSeconds = Math.floor(secondsLeft % 60);
       return `${this.pad(minutes)}:${this.pad(remainingSeconds)}`;  
     }
   }
